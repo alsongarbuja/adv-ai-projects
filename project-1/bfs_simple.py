@@ -2,11 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
 
-def visulize_maze(maze, start, goal, path, filename):
-    if maze is None:
-        print("Error: No maze with solution found")
-        return
-
+def visulize_maze(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, int], path: list[tuple[int, int]], title: str):
     rows = len(maze)
     cols = len(maze[0])
 
@@ -32,14 +28,12 @@ def visulize_maze(maze, start, goal, path, filename):
         plt.plot(path_y, path_x, color='yellow', linewidth=2)
 
     # Set the title of the image
-    main_title = filename.split("/")
-    title = main_title[len(main_title)-1].replace('.lay', ' Visual')
     plt.title(title, fontsize=16)
 
     plt.show()
 
 
-def bfs_search(maze):
+def bfs_search(maze: list[list[str]]):
     """
     Find the shortest path in a maze using Breadth-First Search (BFS) algorithm
 
@@ -50,10 +44,6 @@ def bfs_search(maze):
     Returns:
         A list of coordinates representing the shortest path, or None if no path is found.
     """
-
-    # Return if invalid maze is passed to the function
-    if maze is None:
-        return [None, None, None]
 
     # Calculate the height and width of the maze
     height = len(maze)
@@ -72,7 +62,7 @@ def bfs_search(maze):
 
     # Return none in case either start or end or both variables are not found
     if not start or not end:
-        return [None, None, None]
+        return (None, None, None)
 
     # Queue storing the next nodes to be explored along side the path it took and the depth it is in
     queue = deque([(start, [start], 0)])
@@ -104,7 +94,7 @@ def bfs_search(maze):
         # Stop the loop when end goal is found
         if (row, col) == end:
             print(f"path cost: {len(path)-1}, nodes expanded: {nodes_expanded}, maximum depth: {max_depth}, maximum fringe size: {max_fringe}")
-            return [start, end, path]
+            return (start, end, path)
 
         # Calculate the new maximum depth
         max_depth = max(max_depth, depth)
@@ -129,9 +119,9 @@ def bfs_search(maze):
                     queue.append(((next_row, next_col), new_path, depth+1))
 
     # Return none in case no end point is found before queue is empty
-    return [None, None, None]
+    return (None, None, None)
 
-def open_maze(file_name):
+def open_maze(file_name: str):
     """
     Open the maze file through given file_name and return the 2D matrix form
 
@@ -147,9 +137,9 @@ def open_maze(file_name):
         return content
     except FileNotFoundError:
         print("Error, file not found")
-        return None
+        return []
 
-def draw_path(maze, path):
+def update_maze_with_path(maze: list[list[str]], path: list[tuple[int, int]]):
     """
     Add the path to the maze if any
 
@@ -160,21 +150,39 @@ def draw_path(maze, path):
     Returns:
       A copy of the 2D list containing the path taken by BFS using '*' in place of the path(' ')
     """
-    if path is None:
-        print("Error: Path not found")
-        return None
 
+    # Creating a duplicate variable to update
     maze_copy = [list(row) for row in maze]
 
+    # Updating the maze to add the found path with '*'
     for r, c in path:
         if maze_copy[r][c] not in ('P', '.'):
             maze_copy[r][c] = "*"
 
     return maze_copy
 
-maze_file_name = "./resources/Maze/bigMaze.lay"
-con = open_maze(maze_file_name)
-[start, end, path] = bfs_search(con)
-solved_maze = draw_path(con, path)
+maze_relative_path = "./resources/Maze/"
+mazes = ["smallMaze", "mediumMaze", "bigMaze", "openMaze"]
 
-visulize_maze(solved_maze, start, end, path, maze_file_name)
+print("Choose a maze file to run the algorithm againts.")
+for i, filename in enumerate(mazes):
+    print(f"{i}) {filename}")
+print("===============================================")
+
+while True:
+  try:
+    file_index = int(input("Enter index: "))
+    if 0<= file_index < len(mazes):
+      break
+    print(f"Invalid index. Please choose index between 0 - {len(mazes)-1}")
+  except ValueError:
+    print(f"Invalid index. Please choose index between 0 - {len(mazes)-1}")
+
+con = open_maze(maze_relative_path+mazes[file_index]+".lay")
+start, end, path = bfs_search(con)
+
+if not start or not end or not path:
+    print("Error: Start or End or Path not found")
+else:
+  solved_maze = update_maze_with_path(con, path)
+  visulize_maze(solved_maze, start, end, path, mazes[file_index]+" Visual")
