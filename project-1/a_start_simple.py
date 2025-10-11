@@ -1,3 +1,4 @@
+import heapq
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -31,11 +32,11 @@ def visulize_maze(maze: list[list[str]], start: tuple[int, int], goal: tuple[int
 
     plt.show()
 
-def heuristic(current, goal):
+def heuristic(current: tuple[int, int], goal: tuple[int, int]) -> int:
     """Calculate the Manhattan distance heuristic."""
     return abs(current[0] - goal[0]) + abs(current[1] + goal[1]);
 
-def a_start_search(maze: list[list[str]]):
+def a_start_search(maze: list[list[str]]) -> tuple[tuple[int, int] | None, tuple[int, int] | None, list[tuple[int, int]] | None]:
     """
     Find the shortest path in a maze using A Start Search (A*) algorithm
 
@@ -66,7 +67,8 @@ def a_start_search(maze: list[list[str]]):
     if not start or not end:
         return (None, None, None)
 
-    open_list = [(0, 0, start, [start])]
+    open_list = []
+    heapq.heappush(open_list, (0, 0, start, [start]))
     g_costs = {start: 0}
 
     # The direction right, left, down and up to traverse in each loop
@@ -85,8 +87,7 @@ def a_start_search(maze: list[list[str]]):
         max_fringe = max(max_fringe, len(open_list))
 
         # Find and remove the node with the lowest f_cost
-        current_node_index = open_list.index(min(open_list))
-        _, g_cost, (row, col), path = open_list.pop(current_node_index)
+        _, g_cost, (row, col), path = heapq.heappop(open_list)
 
         # Increasing the expanded node number by 1
         nodes_expanded += 1
@@ -110,7 +111,7 @@ def a_start_search(maze: list[list[str]]):
                     h_cost = heuristic(neighbor, end)
                     new_f_cost = new_g_cost + h_cost
                     new_path = path + [neighbor]
-                    open_list.append((new_f_cost, new_g_cost, neighbor, new_path))
+                    heapq.heappush(open_list, (new_f_cost, new_g_cost, neighbor, new_path))
 
     # Return none in case no end point is found before queue is empty
     return (None, None, None)
@@ -131,7 +132,7 @@ def open_maze(file_name: str):
         return content
     except FileNotFoundError:
         print("Error, file not found")
-        return []
+        return None 
 
 def update_maze_with_path(maze: list[list[str]], path: list[tuple[int, int]]):
     """
@@ -173,10 +174,11 @@ while True:
     print(f"Invalid index. Please choose index between 0 - {len(mazes)-1}")
 
 con = open_maze(maze_relative_path+mazes[file_index]+".lay")
-start, end, path = a_start_search(con)
+if con:
+    start, end, path = a_start_search(con)
 
-if not start or not end or not path:
-    print("Error: Start or End or Path not found")
-else:
-  solved_maze = update_maze_with_path(con, path)
-  visulize_maze(solved_maze, start, end, path, mazes[file_index]+" Visual")
+    if not start or not end or not path:
+        print("Error: Start or End or Path not found")
+    else:
+        solved_maze = update_maze_with_path(con, path)
+        visulize_maze(solved_maze, start, end, path, mazes[file_index]+" Visual")
