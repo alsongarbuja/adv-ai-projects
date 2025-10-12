@@ -1,3 +1,4 @@
+import time
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import deque
@@ -179,7 +180,13 @@ while True:
     print(f"Invalid index. Please choose index between 0 - {len(mazes)-1}")
 
 con = open_maze(maze_relative_path+mazes[file_index]+".lay")
+
+start_time = time.perf_counter()
 start, end, path = bfs_search(con)
+end_time = time.perf_counter()
+
+elapsed_time = end_time - start_time
+print(f"Time elapsed: {elapsed_time * 1000} ms")
 
 if not start or not end or not path:
     print("Error: Start or End or Path not found")

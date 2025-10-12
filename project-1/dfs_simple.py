@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 def visulize_maze(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, int], path: list[tuple[int, int]], title: str):
     rows = len(maze)
@@ -180,7 +181,13 @@ while True:
     print(f"Invalid index. Please choose index between 0 - {len(mazes)-1}")
 
 con = open_maze(maze_relative_path+mazes[file_index]+".lay")
+
+start_time = time.perf_counter()
 start, end, path = dfs_search(con)
+end_time = time.perf_counter()
+
+elapsed_time = end_time - start_time
+print(f"Elapsed time: {elapsed_time*1000}ms")
 
 if not start or not end or not path:
     print("Error: Start or End or Path not found")

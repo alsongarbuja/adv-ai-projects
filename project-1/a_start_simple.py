@@ -1,6 +1,7 @@
 import heapq
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 def visulize_maze(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, int], path: list[tuple[int, int]], title: str):
     rows = len(maze)
@@ -175,7 +176,12 @@ while True:
 
 con = open_maze(maze_relative_path+mazes[file_index]+".lay")
 if con:
+    start_time = time.perf_counter()
     start, end, path = a_start_search(con)
+    end_time = time.perf_counter()
+
+    elapsed_time = end_time - start_time
+    print(f"Time elapsed: {elapsed_time * 1000} ms")
 
     if not start or not end or not path:
         print("Error: Start or End or Path not found")
