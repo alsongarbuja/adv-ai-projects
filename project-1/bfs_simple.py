@@ -1,38 +1,7 @@
 import time
-import matplotlib.pyplot as plt
-import numpy as np
 from collections import deque
-
-def visulize_maze(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, int], path: list[tuple[int, int]], title: str):
-    rows = len(maze)
-    cols = len(maze[0])
-
-    grid = np.zeros((rows, cols))
-    plt.figure(figsize=(6, 6))
-    plt.imshow(np.zeros_like(grid), cmap='grey')
-
-    # Fill the wall as skyblue color
-    for i in range(rows):
-        for j in range(cols):
-            if maze[i][j] == "%":
-                plt.fill_between([j-0.4, j+0.4], i-0.4, i+0.4, color='skyblue')
-
-    # Add a scatter plot (circle) with color orange in place of start node
-    plt.scatter(start[1], start[0], color='orange', label='Start (P)', linewidth=2)
-
-    # Add a scatter plot (circle) with color green in place of end node
-    plt.scatter(goal[1], goal[0], color='green', label='End (.)', linewidth=2)
-
-    # Plot the entire path as a yellow thin line
-    if path:
-        path_x, path_y = zip(*path)  # Unzip path into x and y coordinates
-        plt.plot(path_y, path_x, color='yellow', linewidth=2)
-
-    # Set the title of the image
-    plt.title(title, fontsize=16)
-
-    plt.show()
-
+from visual import visualize_maze
+from utility import open_maze_file, update_maze_with_path, show_maze_options
 
 def bfs_search(maze: list[list[str]]):
     """
@@ -122,64 +91,8 @@ def bfs_search(maze: list[list[str]]):
     # Return none in case no end point is found before queue is empty
     return (None, None, None)
 
-def open_maze(file_name: str):
-    """
-    Open the maze file through given file_name and return the 2D matrix form
-
-    Args:
-      file_name: The relative path to the file
-
-    Returns:
-      A 2D matrix (2D list) containing either the wall('%'), path(' '), start('P') or end('.') in each cell of the maze
-    """
-    try:
-        with open(file_name, "r") as file:
-            content = [list(line.strip()) for line in file]
-        return content
-    except FileNotFoundError:
-        print("Error, file not found")
-        return []
-
-def update_maze_with_path(maze: list[list[str]], path: list[tuple[int, int]]):
-    """
-    Add the path to the maze if any
-
-    Args:
-      maze: The 2D list containing the maze data
-      path: The list of tuples containing the shortest path given by BFS
-
-    Returns:
-      A copy of the 2D list containing the path taken by BFS using '*' in place of the path(' ')
-    """
-
-    # Creating a duplicate variable to update
-    maze_copy = [list(row) for row in maze]
-
-    # Updating the maze to add the found path with '*'
-    for r, c in path:
-        if maze_copy[r][c] not in ('P', '.'):
-            maze_copy[r][c] = "*"
-
-    return maze_copy
-
-maze_relative_path = "./resources/Maze/"
-mazes = ["smallMaze", "mediumMaze", "bigMaze", "openMaze"]
-
-print("Choose a maze file to run the algorithm againts.")
-for i, filename in enumerate(mazes):
-    print(f"{i}) {filename}")
-print("===============================================")
-
-while True:
-  try:
-    file_index = int(input("Enter index: "))
-    if 0<= file_index < len(mazes):
-      break
-    print(f"Invalid index. Please choose index between 0 - {len(mazes)-1}")
-  except ValueError:
-    print(f"Invalid index. Please choose index between 0 - {len(mazes)-1}")
-
-con = open_maze(maze_relative_path+mazes[file_index]+".lay")
+file_path, title = show_maze_options()
+con = open_maze_file(file_path)
 
 start_time = time.perf_counter()
 start, end, path = bfs_search(con)
@@ -192,4 +105,4 @@ if not start or not end or not path:
     print("Error: Start or End or Path not found")
 else:
   solved_maze = update_maze_with_path(con, path)
-  visulize_maze(solved_maze, start, end, path, mazes[file_index]+" Visual")
+  visualize_maze(solved_maze, start, [end], path, title)
