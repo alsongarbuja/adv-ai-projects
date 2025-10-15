@@ -60,3 +60,25 @@ def show_maze_options(is_multiple: bool = False) -> tuple[str, str]:
     file_path = maze_relative_path+mazes[file_index]+".lay"
     return (file_path, mazes[file_index]+" Visualized")
 
+def find_start_goals(maze: list[list[str]]) -> tuple[tuple[int, int], list[tuple[int, int]]]:
+    """
+    Returns the start and goals tuples
+
+    Args:
+        maze: A 2D list of characters representing the maze.
+
+    Returns:
+        Tuple of start and goals tuples.
+    """
+    start = (0, 0)
+    goals: list[tuple[int, int]] = []
+
+    for r in range(len(maze)):
+        for c in range(len(maze[0])):
+            if maze[r][c] == 'P':
+                start = (r, c)
+            if maze[r][c] == '.':
+                goals.append((r, c))
+
+    return (start, goals)
+
