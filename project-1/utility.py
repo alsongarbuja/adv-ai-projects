@@ -40,6 +40,15 @@ def update_maze_with_path(maze: list[list[str]], path: list[tuple[int, int]]):
     return maze_copy
 
 def show_maze_options(is_multiple: bool = False) -> tuple[str, str]:
+    """
+    Simple function to show correct maze options according to the type of alogirthm running
+
+    Args:
+        is_multiple: A boolean denoting if the algorith is for simple mazes or multiple goal type pages
+
+    Returns:
+        A tuple containing the file path and title to be used in visualizing
+    """
     maze_relative_path = "./resources/Maze/"
     mazes = ["smallSearch", "tinySearch", "trickySearch"] if is_multiple else ["smallMaze", "mediumMaze", "bigMaze", "openMaze"]
 
@@ -62,7 +71,7 @@ def show_maze_options(is_multiple: bool = False) -> tuple[str, str]:
 
 def find_start_goals(maze: list[list[str]]) -> tuple[tuple[int, int], list[tuple[int, int]]]:
     """
-    Returns the start and goals tuples
+    Simple funtion to return the start and goals tuples
 
     Args:
         maze: A 2D list of characters representing the maze.

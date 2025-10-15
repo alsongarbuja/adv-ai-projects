@@ -3,16 +3,20 @@ from collections import deque
 from visual import visualize_maze
 from utility import open_maze_file, show_maze_options, update_maze_with_path, find_start_goals
 
-def bfs_search(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, int]) -> list[tuple[int, int]]:
+def bfs_search(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, int], depth: int, fringe_size: int) -> tuple[list[tuple[int, int]], int, int, int]:
     """
     Find the shortest path in a maze using Breadth-First Search (BFS) algorithm
 
     Args:
         maze: A 2D list of characters representing the maze.
             '%' = wall, 'p' = start, '.' = end, ' ' = path
+        start: A tuple containg the coordinates of the start location
+        goal: A tuple containg the coordinates of the goal location
+        depth: Maximum depth
+        fringe_size: Maximum fringe size
 
     Returns:
-        A list of coordinates representing the shortest path, or None if no path is found.
+        A tuple containing list of coordinates representing the shortest path, max depth traversed, max fringe size and total nodes expanded 
     """
 
     # Calculate the height and width of the maze
@@ -26,14 +30,14 @@ def bfs_search(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, i
     visited = {start}
 
     # The direction right, left, down and up to traverse in each loop
-    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
     # Variable for holding number of nodes expanded
     nodes_expanded = 0
 
     # variable for holding maximum depth reached and maximum fringe size
-    max_depth = 0
-    max_fringe = 0 # fringe size is the maximum number of nodes in the queue at any given time
+    max_depth = depth
+    max_fringe = fringe_size # fringe size is the maximum number of nodes in the queue at any given time
 
     # Start of the algorithm
     while queue:
@@ -41,18 +45,18 @@ def bfs_search(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, i
         max_fringe = max(max_fringe, len(queue))
 
         # Popping the first element from queue and assiging each values to their respective variables
-        (row, col), path, depth = queue.popleft()
+        (row, col), path, dp = queue.popleft()
 
         # Increasing the expanded node number by 1
         nodes_expanded += 1
 
         # Stop the loop when all the goals are visited
         if goal == (row, col):
-            print(f"path cost: {len(path)-1}, nodes expanded: {nodes_expanded}, maximum depth: {max_depth}, maximum fringe size: {max_fringe}")
-            return path
+            #print(f"depth: {max_depth}, fringe: {max_fringe}")
+            return (path, max_depth, max_fringe, nodes_expanded)
 
         # Calculate the new maximum depth
-        max_depth = max(max_depth, depth)
+        max_depth = max(max_depth, dp)
 
         # Travese on each direction from current node to check for the availble paths
         for dr, dc in directions:
@@ -71,10 +75,10 @@ def bfs_search(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, i
                     new_path = path + [(next_row, next_col)]
 
                     # Add it to the queue for exploration in next loop
-                    queue.append(((next_row, next_col), new_path, depth+1))
+                    queue.append(((next_row, next_col), new_path, dp+1))
 
     # Return none in case no end point is found before queue is empty
-    return []
+    return ([], max_depth, max_fringe, nodes_expanded)
 
 file_path, title = show_maze_options(True)
 con = open_maze_file(file_path)
@@ -83,14 +87,22 @@ start_time = time.perf_counter()
 start, goals = find_start_goals(con)
 final_path: list[tuple[int, int]] = []
 new_start = start
+max_depth = 0 
+max_fringe_size = 0
+total_nodes = 0
 
 for goal in goals:
-    final_path = final_path + bfs_search(con, new_start, goal)
+    new_path, depth, fringe_size, nodes_expanded = bfs_search(con, new_start, goal, max_depth, max_fringe_size)
+    final_path = final_path + new_path
     new_start = goal
+    max_depth = depth
+    max_fringe_size = fringe_size
+    total_nodes += nodes_expanded
 
 end_time = time.perf_counter()
 
 elapsed_time = end_time - start_time
+print(f"path cost: {len(final_path)-len(goals)}, nodes expanded: {total_nodes}, maximum depth: {max_depth}, maximum fringe size: {max_fringe_size}")
 print(f"Time elapsed: {elapsed_time * 1000} ms")
 
 if not start:

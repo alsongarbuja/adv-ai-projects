@@ -41,7 +41,7 @@ def bfs_search(maze: list[list[str]]):
     visited = {start}
 
     # The direction right, left, down and up to traverse in each loop
-    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
     # Variable for holding number of nodes expanded
     nodes_expanded = 0

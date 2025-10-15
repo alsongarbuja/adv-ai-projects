@@ -2,6 +2,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def visualize_maze(maze: list[list[str]], start: tuple[int, int], goals: list[tuple[int, int]], path: list[tuple[int, int]], title: str) -> None:
+    """
+    Simple function to visualize the maze after finding the shortest path
+
+    Args:
+        maze: A 2D matrix containing the maze data with path denoted by '*'
+        start: A tuple for start position
+        goals: List of tuples of all the goal positions
+        path: List of tuples which are the path taken by the algorithm
+        title: A string containing the title to show above the visual
+    """
     rows = len(maze)
     cols = len(maze[0])
 
@@ -31,4 +41,3 @@ def visualize_maze(maze: list[list[str]], start: tuple[int, int], goals: list[tu
     plt.title(title, fontsize=16)
 
     plt.show()
-    return None
