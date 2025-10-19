@@ -39,5 +39,6 @@ def visualize_maze(maze: list[list[str]], start: tuple[int, int], goals: list[tu
 
     # Set the title of the image
     plt.title(title, fontsize=16)
-
+    plt.xticks([])
+    plt.yticks([])
     plt.show()
