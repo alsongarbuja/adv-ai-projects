@@ -4,14 +4,14 @@ from utility import open_maze_file, update_maze_with_path, show_maze_options
 
 def dfs_search(maze: list[list[str]]):
     """
-    Find the shortest path in a maze using Depth-First Search (DFS) algorithm
+    Finds the shortest path in a maze using Depth-First Search (DFS) algorithm
 
     Args:
-        maze: A 2D list of characters representing the maze.
+        maze: A 2D list of lists of characters representing the maze.
             '%' = wall, 'p' = start, '.' = end, ' ' = path
 
     Returns:
-        A list of coordinates representing the shortest path, or None if no path is found.
+        A tuple containing the start coordinate, end coordinate and a list of paths if found
     """
 
     # Calculate the height and width of the maze
@@ -34,7 +34,7 @@ def dfs_search(maze: list[list[str]]):
         return (None, None, None)
 
     # Stack storing the next nodes to be explored along side the path it took
-    stack = [(start, [start])]
+    frontier = [(start, [start])]
 
     # Set of nodes that are already visited by the algorithm
     visited = {start}
@@ -54,12 +54,12 @@ def dfs_search(maze: list[list[str]]):
     max_fringe = 0 # fringe size is the maximum number of nodes in the stack at any given time
 
     # Start of the algorithm
-    while stack:
+    while frontier:
         # Cacluating the new maximum fringe
-        max_fringe = max(max_fringe, len(stack))
+        max_fringe = max(max_fringe, len(frontier))
 
         # Popping the last element from stack and assiging each values to their respective variables
-        (row, col), path = stack.pop()
+        (row, col), path = frontier.pop()
 
         # Increasing the expanded node number by 1
         nodes_expanded += 1
@@ -89,7 +89,7 @@ def dfs_search(maze: list[list[str]]):
                     new_path = path + [(next_row, next_col)]
 
                     # Add it to the stack for exploration in next loop
-                    stack.append(((next_row, next_col), new_path))
+                    frontier.append(((next_row, next_col), new_path))
 
     # Return none in case no end point is found before stack is empty
     return (None, None, None)

@@ -5,10 +5,10 @@ from utility import open_maze_file, show_maze_options, update_maze_with_path, fi
 
 def bfs_search(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, int], depth: int, fringe_size: int) -> tuple[list[tuple[int, int]], int, int, int]:
     """
-    Find the shortest path in a maze using Breadth-First Search (BFS) algorithm
+    Finds the shortest path in a maze using Breadth-First Search (BFS) algorithm
 
     Args:
-        maze: A 2D list of characters representing the maze.
+        maze: A 2D list of lists of characters representing the maze.
             '%' = wall, 'p' = start, '.' = end, ' ' = path
         start: A tuple containg the coordinates of the start location
         goal: A tuple containg the coordinates of the goal location
@@ -24,7 +24,7 @@ def bfs_search(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, i
     width = len(maze[0])
 
     # Queue storing the next nodes to be explored along side the path it took and the depth it is in
-    queue = deque([(start, [start], 0)])
+    frontier = deque([(start, [start], 0)])
 
     # Set of nodes that are already visited by the algorithm
     visited = {start}
@@ -40,12 +40,12 @@ def bfs_search(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, i
     max_fringe = fringe_size # fringe size is the maximum number of nodes in the queue at any given time
 
     # Start of the algorithm
-    while queue:
+    while frontier:
         # Cacluating the new maximum fringe
-        max_fringe = max(max_fringe, len(queue))
+        max_fringe = max(max_fringe, len(frontier))
 
         # Popping the first element from queue and assiging each values to their respective variables
-        (row, col), path, dp = queue.popleft()
+        (row, col), path, dp = frontier.popleft()
 
         # Increasing the expanded node number by 1
         nodes_expanded += 1
@@ -75,7 +75,7 @@ def bfs_search(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, i
                     new_path = path + [(next_row, next_col)]
 
                     # Add it to the queue for exploration in next loop
-                    queue.append(((next_row, next_col), new_path, dp+1))
+                    frontier.append(((next_row, next_col), new_path, dp+1))
 
     # Return none in case no end point is found before queue is empty
     return ([], max_depth, max_fringe, nodes_expanded)
@@ -83,13 +83,14 @@ def bfs_search(maze: list[list[str]], start: tuple[int, int], goal: tuple[int, i
 file_path, title = show_maze_options(True)
 con = open_maze_file(file_path)
 
-start_time = time.perf_counter()
 start, goals = find_start_goals(con)
 final_path: list[tuple[int, int]] = []
 new_start = start
 max_depth = 0 
 max_fringe_size = 0
 total_nodes = 0
+
+start_time = time.perf_counter()
 
 for goal in goals:
     new_path, depth, fringe_size, nodes_expanded = bfs_search(con, new_start, goal, max_depth, max_fringe_size)
@@ -105,8 +106,8 @@ elapsed_time = end_time - start_time
 print(f"path cost: {len(final_path)-len(goals)}, nodes expanded: {total_nodes}, maximum depth: {max_depth}, maximum fringe size: {max_fringe_size}")
 print(f"Time elapsed: {elapsed_time * 1000} ms")
 
-if not start:
-    print("Error: Start or End not found")
+if not start or len(goals) == 0 or len(final_path) == 0:
+    print("Error: Start or End or Path not found")
 else:
   solved_maze = update_maze_with_path(con, final_path)
   visualize_maze(solved_maze, start, goals, final_path, title)

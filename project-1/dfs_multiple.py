@@ -4,7 +4,7 @@ from utility import open_maze_file, show_maze_options, update_maze_with_path, fi
 
 def dfs_multiple(maze: list[list[str]], start: tuple[int, int], end: tuple[int, int], depth: int, fringe_size: int) -> tuple[list[tuple[int, int]], int, int, int]:
     """
-    Find the shortest path in a maze using Depth-First Search (DFS) algorithm
+    Finds the shortest path in a maze using Depth-First Search (DFS) algorithm
 
     Args:
         maze: A 2D list of characters representing the maze.
@@ -23,7 +23,7 @@ def dfs_multiple(maze: list[list[str]], start: tuple[int, int], end: tuple[int, 
     width = len(maze[0])
 
     # Stack storing the next nodes to be explored along side the path it took
-    stack = [(start, [start])]
+    frontier = [(start, [start])]
 
     # Set of nodes that are already visited by the algorithm
     visited = {start}
@@ -43,12 +43,12 @@ def dfs_multiple(maze: list[list[str]], start: tuple[int, int], end: tuple[int, 
     max_fringe = fringe_size # fringe size is the maximum number of nodes in the stack at any given time
 
     # Start of the algorithm
-    while stack:
+    while frontier:
         # Cacluating the new maximum fringe
-        max_fringe = max(max_fringe, len(stack))
+        max_fringe = max(max_fringe, len(frontier))
 
         # Popping the last element from stack and assiging each values to their respective variables
-        (row, col), path = stack.pop()
+        (row, col), path = frontier.pop()
 
         # Increasing the expanded node number by 1
         nodes_expanded += 1
@@ -78,7 +78,7 @@ def dfs_multiple(maze: list[list[str]], start: tuple[int, int], end: tuple[int, 
                     new_path = path + [(next_row, next_col)]
 
                     # Add it to the stack for exploration in next loop
-                    stack.append(((next_row, next_col), new_path))
+                    frontier.append(((next_row, next_col), new_path))
 
     # Return none in case no end point is found before stack is empty
     return ([], max_depth, max_fringe, nodes_expanded)
@@ -86,14 +86,14 @@ def dfs_multiple(maze: list[list[str]], start: tuple[int, int], end: tuple[int, 
 file_path, title = show_maze_options(True)
 con = open_maze_file(file_path)
 
-start_time = time.perf_counter()
-
 start, goals = find_start_goals(con)
 final_path: list[tuple[int, int]] = []
 new_start = start
 max_depth = 0
 max_fringe = 0
 total_nodes = 0
+
+start_time = time.perf_counter()
 
 for goal in goals:
     new_path, dp, fs, ne = dfs_multiple(con, new_start, goal, max_depth, max_fringe)

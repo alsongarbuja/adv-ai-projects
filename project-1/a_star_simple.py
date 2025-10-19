@@ -9,14 +9,14 @@ def heuristic(current: tuple[int, int], goal: tuple[int, int]) -> int:
 
 def a_start_search(maze: list[list[str]]) -> tuple[tuple[int, int] | None, tuple[int, int] | None, list[tuple[int, int]] | None]:
     """
-    Find the shortest path in a maze using A Start Search (A*) algorithm
+    Finds the shortest path in a maze using A Start Search (A*) algorithm
 
     Args:
         maze: A 2D list of characters representing the maze.
             '%' = wall, 'p' = start, '.' = end, ' ' = path
 
     Returns:
-        A list of coordinates representing the shortest path, or None if no path is found.
+        A tuple containing the start coordinate, end coordinate and a list of paths if found
     """
 
     # Calculate the height and width of the maze
@@ -38,8 +38,8 @@ def a_start_search(maze: list[list[str]]) -> tuple[tuple[int, int] | None, tuple
     if not start or not end:
         return (None, None, None)
 
-    open_list = []
-    heapq.heappush(open_list, (0, 0, start, [start]))
+    frontier = []
+    heapq.heappush(frontier, (0, 0, start, [start]))
     g_costs = {start: 0}
 
     # The direction right, left, down and up to traverse in each loop
@@ -53,12 +53,12 @@ def a_start_search(maze: list[list[str]]) -> tuple[tuple[int, int] | None, tuple
     max_fringe = 0 # fringe size is the maximum number of nodes in the queue at any given time
 
     # Start of the algorithm
-    while open_list:
+    while frontier:
         # Calcluating the new maximum fringe
-        max_fringe = max(max_fringe, len(open_list))
+        max_fringe = max(max_fringe, len(frontier))
 
         # Find and remove the node with the lowest f_cost
-        _, g_cost, (row, col), path = heapq.heappop(open_list)
+        _, g_cost, (row, col), path = heapq.heappop(frontier)
 
         # Increasing the expanded node number by 1
         nodes_expanded += 1
@@ -82,7 +82,7 @@ def a_start_search(maze: list[list[str]]) -> tuple[tuple[int, int] | None, tuple
                     h_cost = heuristic(neighbor, end)
                     new_f_cost = new_g_cost + h_cost
                     new_path = path + [neighbor]
-                    heapq.heappush(open_list, (new_f_cost, new_g_cost, neighbor, new_path))
+                    heapq.heappush(frontier, (new_f_cost, new_g_cost, neighbor, new_path))
 
     # Return none in case no end point is found before queue is empty
     return (None, None, None)

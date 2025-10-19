@@ -5,14 +5,14 @@ from utility import open_maze_file, update_maze_with_path, show_maze_options
 
 def bfs_search(maze: list[list[str]]):
     """
-    Find the shortest path in a maze using Breadth-First Search (BFS) algorithm
+    Finds the shortest path in a 2D maze using Breadth-First Search (BFS) algorithm
 
     Args:
-        maze: A 2D list of characters representing the maze.
+        maze: A 2D list of lists of characters representing the maze.
             '%' = wall, 'p' = start, '.' = end, ' ' = path
 
     Returns:
-        A list of coordinates representing the shortest path, or None if no path is found.
+        A tuple containing the start coordinate, end coordinate and a list of paths if found.
     """
 
     # Calculate the height and width of the maze
@@ -35,7 +35,7 @@ def bfs_search(maze: list[list[str]]):
         return (None, None, None)
 
     # Queue storing the next nodes to be explored along side the path it took and the depth it is in
-    queue = deque([(start, [start], 0)])
+    frontier = deque([(start, [start], 0)])
 
     # Set of nodes that are already visited by the algorithm
     visited = {start}
@@ -51,12 +51,12 @@ def bfs_search(maze: list[list[str]]):
     max_fringe = 0 # fringe size is the maximum number of nodes in the queue at any given time
 
     # Start of the algorithm
-    while queue:
+    while frontier:
         # Cacluating the new maximum fringe
-        max_fringe = max(max_fringe, len(queue))
+        max_fringe = max(max_fringe, len(frontier))
 
         # Popping the first element from queue and assiging each values to their respective variables
-        (row, col), path, depth = queue.popleft()
+        (row, col), path, depth = frontier.popleft()
 
         # Increasing the expanded node number by 1
         nodes_expanded += 1
@@ -86,7 +86,7 @@ def bfs_search(maze: list[list[str]]):
                     new_path = path + [(next_row, next_col)]
 
                     # Add it to the queue for exploration in next loop
-                    queue.append(((next_row, next_col), new_path, depth+1))
+                    frontier.append(((next_row, next_col), new_path, depth+1))
 
     # Return none in case no end point is found before queue is empty
     return (None, None, None)
