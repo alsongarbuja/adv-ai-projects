@@ -7,7 +7,7 @@ def heuristic(current: tuple[int, int], goal: tuple[int, int]) -> int:
     """Calculate the Manhattan distance heuristic."""
     return abs(current[0] - goal[0]) + abs(current[1] + goal[1]);
 
-def a_start_search(maze: list[list[str]]) -> tuple[tuple[int, int] | None, tuple[int, int] | None, list[tuple[int, int]] | None]:
+def a_start_search(maze: list[list[str]]):
     """
     Finds the shortest path in a maze using A Start Search (A*) algorithm
 
@@ -36,15 +36,15 @@ def a_start_search(maze: list[list[str]]) -> tuple[tuple[int, int] | None, tuple
 
     # Return none in case either start or end or both variables are not found
     if not start or not end:
-        return (None, None, None)
+        return (None, None, None, None, None, None)
 
     frontier = []
     heapq.heappush(frontier, (0, 0, start, [start]))
     g_costs = {start: 0}
 
     # The direction right, left, down and up to traverse in each loop
-    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    
     # Variable for holding number of nodes expanded
     nodes_expanded = 0
 
@@ -68,8 +68,8 @@ def a_start_search(maze: list[list[str]]) -> tuple[tuple[int, int] | None, tuple
 
         # Stop the loop when end goal is found
         if (row, col) == end:
-            print(f"path cost: {len(path)-1}, nodes expanded: {nodes_expanded}, maximum depth: {max_depth}, maximum fringe size: {max_fringe}")
-            return (start, end, path)
+            #print(f"path cost: {len(path)-1}, nodes expanded: {nodes_expanded}, maximum depth: {max_depth}, maximum fringe size: {max_fringe}")
+            return (start, end, path, nodes_expanded, max_depth, max_fringe)
 
         for dr, dc in directions:
             next_row, next_col = row + dr, col + dc
@@ -85,20 +85,20 @@ def a_start_search(maze: list[list[str]]) -> tuple[tuple[int, int] | None, tuple
                     heapq.heappush(frontier, (new_f_cost, new_g_cost, neighbor, new_path))
 
     # Return none in case no end point is found before queue is empty
-    return (None, None, None)
+    return (None, None, None, None, None, None)
 
-file_path, title = show_maze_options()
+file_path, title = show_maze_options("A*")
 con = open_maze_file(file_path)
 
 start_time = time.perf_counter()
-start, end, path = a_start_search(con)
+start, end, path, ne, md, mf = a_start_search(con)
 end_time = time.perf_counter()
 
 elapsed_time = end_time - start_time
 print(f"Time elapsed: {elapsed_time * 1000} ms")
 
-if not start or not end or not path:
+if not start or not end or not path or not ne or not md or not mf:
     print("Error: Start or End or Path not found")
 else:
     solved_maze = update_maze_with_path(con, path)
-    visualize_maze(solved_maze, start, [end], path, title)
+    visualize_maze(solved_maze, start, [end], path, title, len(path)-1, ne, md, mf)

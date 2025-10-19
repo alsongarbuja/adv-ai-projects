@@ -32,7 +32,7 @@ def bfs_search(maze: list[list[str]]):
 
     # Return none in case either start or end or both variables are not found
     if not start or not end:
-        return (None, None, None)
+        return (None, None, None, None, None, None, None)
 
     # Queue storing the next nodes to be explored along side the path it took and the depth it is in
     frontier = deque([(start, [start], 0)])
@@ -63,8 +63,8 @@ def bfs_search(maze: list[list[str]]):
 
         # Stop the loop when end goal is found
         if (row, col) == end:
-            print(f"path cost: {len(path)-1}, nodes expanded: {nodes_expanded}, maximum depth: {max_depth}, maximum fringe size: {max_fringe}")
-            return (start, end, path)
+            #print(f"path cost: {len(path)-1}, nodes expanded: {nodes_expanded}, maximum depth: {max_depth}, maximum fringe size: {max_fringe}")
+            return (start, end, path, len(path)-1, nodes_expanded, max_depth, max_fringe)
 
         # Calculate the new maximum depth
         max_depth = max(max_depth, depth)
@@ -89,20 +89,20 @@ def bfs_search(maze: list[list[str]]):
                     frontier.append(((next_row, next_col), new_path, depth+1))
 
     # Return none in case no end point is found before queue is empty
-    return (None, None, None)
+    return (None, None, None, None, None, None, None)
 
-file_path, title = show_maze_options()
+file_path, title = show_maze_options("BFS")
 con = open_maze_file(file_path)
 
 start_time = time.perf_counter()
-start, end, path = bfs_search(con)
+start, end, path, cost, ne, md, mf = bfs_search(con)
 end_time = time.perf_counter()
 
 elapsed_time = end_time - start_time
 print(f"Time elapsed: {elapsed_time * 1000} ms")
 
-if not start or not end or not path:
+if not start or not end or not path or not ne or not md or not mf or not cost:
     print("Error: Start or End or Path not found")
 else:
   solved_maze = update_maze_with_path(con, path)
-  visualize_maze(solved_maze, start, [end], path, title)
+  visualize_maze(solved_maze, start, [end], path, title, cost, ne, md, mf)

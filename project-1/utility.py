@@ -39,12 +39,13 @@ def update_maze_with_path(maze: list[list[str]], path: list[tuple[int, int]]):
 
     return maze_copy
 
-def show_maze_options(is_multiple: bool = False) -> tuple[str, str]:
+def show_maze_options(algo_used: str, is_multiple: bool = False) -> tuple[str, str]:
     """
     Simple function to show correct maze options according to the type of alogirthm running
 
     Args:
         is_multiple: A boolean denoting if the algorith is for simple mazes or multiple goal type pages
+        algo_used: Abbrebated form of the algorithm used
 
     Returns:
         A tuple containing the file path and title to be used in visualizing
@@ -67,7 +68,7 @@ def show_maze_options(is_multiple: bool = False) -> tuple[str, str]:
             print(f"Invalid index. Please choose index between 0 - {len(mazes)-1}")
 
     file_path = maze_relative_path+mazes[file_index]+".lay"
-    return (file_path, mazes[file_index]+" Visualized")
+    return (file_path, mazes[file_index]+" Visualized ("+algo_used+")")
 
 def find_start_goals(maze: list[list[str]]) -> tuple[tuple[int, int], list[tuple[int, int]]]:
     """
