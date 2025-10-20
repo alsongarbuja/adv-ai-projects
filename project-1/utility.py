@@ -1,3 +1,9 @@
+from enum import Enum
+
+class HeuristicFn(Enum):
+    MANHATTAN = "Manhattan"
+    EUCLIDEAN = "Euclidean"
+    CHEBYSHEV = "Chebyshev"
 
 def open_maze_file(file_name: str) -> list[list[str]]:
     """
@@ -70,6 +76,31 @@ def show_maze_options(algo_used: str, is_multiple: bool = False) -> tuple[str, s
     file_path = maze_relative_path+mazes[file_index]+".lay"
     return (file_path, mazes[file_index]+" Visualized ("+algo_used+")")
 
+def show_heuristic_options():
+    """
+    Simple function to show heursitic functions options to choose
+
+    Returns:
+      The heuristic function choosen by user
+    """
+
+    print("Choose a heuristic function to use.")
+    for i, hf in enumerate(HeuristicFn):
+        print(f"{i}) {hf}")
+    print("===============================================")
+
+    while True:
+        try:
+            file_index = int(input("Enter index: "))
+            if 0<= file_index < len(HeuristicFn):
+                break
+            print(f"Invalid index. Please choose index between 0 - {len(HeuristicFn)-1}")
+        except ValueError:
+            print(f"Invalid index. Please choose index between 0 - {len(HeuristicFn)-1}")
+
+    return list(HeuristicFn)[file_index]
+
+
 def find_start_goals(maze: list[list[str]]) -> tuple[tuple[int, int], list[tuple[int, int]]]:
     """
     Simple funtion to return the start and goals tuples
@@ -91,4 +122,3 @@ def find_start_goals(maze: list[list[str]]) -> tuple[tuple[int, int], list[tuple
                 goals.append((r, c))
 
     return (start, goals)
-

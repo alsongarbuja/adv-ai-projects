@@ -1,10 +1,12 @@
-from utility import show_maze_options, find_start_goals, open_maze_file, update_maze_with_path
+from utility import show_maze_options, find_start_goals, open_maze_file, update_maze_with_path, HeuristicFn, show_heuristic_options
 from visual import visualize_maze
 from search_algorithm import a_star_search
 
 # Show the options of mazes
 file_path, title = show_maze_options(algo_used="A*", is_multiple=True)
 maze_data = open_maze_file(file_path) # Open the maze file to get the maze data
+
+hf = show_heuristic_options() # Show options of heuristic function
 
 start, goals = find_start_goals(maze_data) # Find the start and goal points
 new_start = start
@@ -13,7 +15,15 @@ final_path = []
 
 for goal in goals:
   # Run the a star search algorithm
-  path, expanded_nodes, depth, fringe = a_star_search(maze_data, new_start, goal)
+  path, expanded_nodes, depth, fringe = a_star_search(
+    maze_data,
+    new_start,
+    goal,
+    heuristic=hf,
+    allow_diagonal=True if hf != HeuristicFn.MANHATTAN else False,
+    fringe=mf,
+    depth=md
+  )
   final_path = final_path + path
   ne += expanded_nodes
   md = depth

@@ -2,6 +2,7 @@ import heapq
 from collections import deque
 
 from heuristic import heuristic_calculation
+from utility import HeuristicFn
 
 def bfs_search(
     maze: list[list[str]],
@@ -146,10 +147,11 @@ def a_star_search(
     maze: list[list[str]],
     start: tuple[int, int],
     goal: tuple[int, int],
+    heuristic: HeuristicFn = HeuristicFn.MANHATTAN,
+    allow_diagonal: bool = False,
     depth: int = 0,
     fringe: int = 0,
     nodes: int = 0,
-    allow_diagonal: bool = False,
   ):
   """
   Finds the shortest path of the maze using A star search algorithm
@@ -159,10 +161,11 @@ def a_star_search(
           where '%' is wall, 'P' is start and '.' is end
     start: Tuple containing start coordinate
     goal: Tuple containing end coordinate
+    heuristic: Enum of heuristic function that can be used, default to manhattan
+    allow_diagonal: Boolean to determine if diagonal movement is allowed or not, default False
     depth: Maximum depth from previous loop, default 0
     fringe: Maximum fringe from previous loop, default 0
     nodes: Number of nodes expanded from previous loop, default 0
-    allow_diagonal: Boolean to determine if diagonal movement is allowed or not, default False
 
   Returns:
     Tuple containing the path list, total nodes expanded, maximum depth, maximum fringe
@@ -206,10 +209,10 @@ def a_star_search(
         # Proceed only either the neighbor is visited first time or the estimation cost has decreased than previously recorded cost for the neighbor node
         if neighbor not in g_costs or new_g_cost < g_costs[neighbor]:
           g_costs[neighbor] = new_g_cost
-          h_cost = heuristic_calculation(neighbor, goal, "Manhattan" if not allow_diagonal else "Chebyshev")
+          h_cost = heuristic_calculation(neighbor, goal, heuristic)
           new_f_cost = new_g_cost + h_cost
           new_path = path + [neighbor]
-          heapq.heappush(frontier, (new_f_cost, new_g_cost if not allow_diagonal else -new_g_cost, neighbor, new_path))
+          heapq.heappush(frontier, (new_f_cost, new_g_cost if heuristic != HeuristicFn.CHEBYSHEV else -new_g_cost, neighbor, new_path))
 
   # If frontier is empty before end goal is found
   return (None, None, None, None)
