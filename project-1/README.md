@@ -40,7 +40,7 @@ Choose the maze from given option for all algorithms. `Note: for a* also select 
 
 ### Part 2: Multiple goal
 
-Here we have 3 mazes [Tiny search](https://github.com/alsongarbuja/adv-ai-projects/blob/main/project-1/resources/Maze/tinySearch.lay), [Tricky Search](https://github.com/alsongarbuja/adv-ai-projects/blob/main/project-1/resources/Maze/trickySearch.lay) and [Small Search](https://github.com/alsongarbuja/adv-ai-projects/blob/main/project-1/resources/Maze/smallSearch.lay) which contains a starting point `'P'` and a single goal point `'.'`
+Here we have 3 mazes [Tiny search](https://github.com/alsongarbuja/adv-ai-projects/blob/main/project-1/resources/Maze/tinySearch.lay), [Tricky Search](https://github.com/alsongarbuja/adv-ai-projects/blob/main/project-1/resources/Maze/trickySearch.lay) and [Small Search](https://github.com/alsongarbuja/adv-ai-projects/blob/main/project-1/resources/Maze/smallSearch.lay) which contains a starting point `'P'` and a multiple goal points `'.'`
 
 > To Run the algorithms run the following commands.
 
