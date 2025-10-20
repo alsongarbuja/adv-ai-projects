@@ -83,7 +83,7 @@ def dfs_multiple(maze: list[list[str]], start: tuple[int, int], end: tuple[int, 
     # Return none in case no end point is found before stack is empty
     return ([], max_depth, max_fringe, nodes_expanded)
 
-file_path, title = show_maze_options(True)
+file_path, title = show_maze_options("DFS", True)
 con = open_maze_file(file_path)
 
 start, goals = find_start_goals(con)
@@ -113,4 +113,4 @@ if not start or len(goals) == 0 or len(final_path) == 0:
     print("Error: Start or End or Path not found")
 else:
   solved_maze = update_maze_with_path(con, final_path)
-  visualize_maze(solved_maze, start, goals, final_path, title)
+  visualize_maze(solved_maze, start, goals, final_path, title, len(final_path)-len(goals), total_nodes, max_depth, max_fringe)

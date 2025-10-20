@@ -5,7 +5,7 @@ from utility import open_maze_file, show_maze_options, update_maze_with_path, fi
 
 def heuristic(current: tuple[int, int], goal: tuple[int, int]) -> int:
     """Calculates the Manhattan distance heuristic."""
-    return abs(current[0] - goal[0]) + abs(current[1] + goal[1]);
+    return abs(current[0] - goal[0]) + abs(current[1] - goal[1]);
 
 def a_start_search(maze: list[list[str]], start: tuple[int, int], end: tuple[int, int], depth: int, fringe_size: int) -> tuple[list[tuple[int, int]], int, int, int]:
     """
@@ -76,7 +76,7 @@ def a_start_search(maze: list[list[str]], start: tuple[int, int], end: tuple[int
     # Return none in case no end point is found before queue is empty
     return ([], max_depth, max_fringe, nodes_expanded)
 
-file_path, title = show_maze_options(True)
+file_path, title = show_maze_options("A*", True)
 con = open_maze_file(file_path)
 
 start, goals = find_start_goals(con)
@@ -106,4 +106,4 @@ if not start or len(goals) == 0 or len(final_path) == 0:
     print("Error: Start or End or Path not found")
 else:
     solved_maze = update_maze_with_path(con, final_path)
-    visualize_maze(solved_maze, start, goals, final_path, title)
+    visualize_maze(solved_maze, start, goals, final_path, title, len(final_path)-len(goals), total_nodes, max_depth, max_fringe)

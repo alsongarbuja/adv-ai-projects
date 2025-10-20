@@ -5,7 +5,7 @@ from utility import open_maze_file, update_maze_with_path, show_maze_options
 
 def heuristic(current: tuple[int, int], goal: tuple[int, int]) -> int:
     """Calculate the Manhattan distance heuristic."""
-    return abs(current[0] - goal[0]) + abs(current[1] + goal[1]);
+    return abs(current[0] - goal[0]) + abs(current[1] - goal[1]);
 
 def a_start_search(maze: list[list[str]]):
     """

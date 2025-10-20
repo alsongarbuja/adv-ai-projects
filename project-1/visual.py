@@ -1,6 +1,16 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+def get_unique_legend_handles_labels():
+    handles, labels = plt.gca().get_legend_handles_labels()
+    uniqueHandles, uniqueLabels = [], []
+    for handle, label in zip(handles, labels):
+        if label not in uniqueLabels:
+            uniqueLabels.append(label)
+            uniqueHandles.append(handle)
+
+    return uniqueHandles, uniqueLabels
+
 def visualize_maze(maze: list[list[str]], start: tuple[int, int], goals: list[tuple[int, int]], path: list[tuple[int, int]], title: str, cost: int, ne: int, md: int, mf: int) -> None:
     """
     Simple function to visualize the maze after finding the shortest path
@@ -43,10 +53,12 @@ def visualize_maze(maze: list[list[str]], start: tuple[int, int], goals: list[tu
 
     # Set the title of the image
     plt.title(title, fontsize=16)
-    
+ 
     plt.xticks([])
     plt.yticks([])
-    plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+
+    uh, ul = get_unique_legend_handles_labels()
+    plt.legend(uh, ul, loc='upper left', bbox_to_anchor=(1, 1))
 
     plt.figtext(0.9, 0.2, f'Path cost: {cost}', ha='right', va='bottom', fontsize=12)
     plt.figtext(0.9, 0.15, f'Nodes expanded: {ne}', ha='right', va='bottom', fontsize=12)
