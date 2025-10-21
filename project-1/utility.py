@@ -1,9 +1,4 @@
-from enum import Enum
-
-class HeuristicFn(Enum):
-    MANHATTAN = "Manhattan"
-    EUCLIDEAN = "Euclidean"
-    CHEBYSHEV = "Chebyshev"
+from heuristic import HeuristicFn, heuristic_calculation
 
 def open_maze_file(file_name: str) -> list[list[str]]:
     """
@@ -115,7 +110,7 @@ def ask_allow_diagonal():
       elif answer == "N" or answer == "n":
           return False
       else:
-        print(f"Invalid index. Please choose index between 0 - {len(HeuristicFn)-1}")
+        print(f"Invalid repsonse. Please type either Y or N")
 
 def find_start_goals(maze: list[list[str]]) -> tuple[tuple[int, int], list[tuple[int, int]]]:
     """
@@ -138,3 +133,45 @@ def find_start_goals(maze: list[list[str]]) -> tuple[tuple[int, int], list[tuple
                 goals.append((r, c))
 
     return (start, goals)
+
+def greedy_goals_sorting(start: tuple[int, int], goals: list[tuple[int, int]], hf: HeuristicFn) -> list[tuple[int, int]]:
+    """
+    Heuristic function based sorting algorithm to sort the goals in a greedy fashion
+
+    Args:
+      start: A tuple containing the coordinates of start point
+      goals: A list of tuple containing the coordinates of all the goal points
+      hf: Heuristic function to use
+
+    Returns:
+      A list of tuple containing goal points sorted in a greedy manner
+    """
+
+    remaining_goals = goals.copy()
+    greedy_goals: list[tuple[int, int]] = []
+    current_node = start
+
+    while remaining_goals:
+        next_goal = min(remaining_goals, key=lambda g: heuristic_calculation(current_node, g, hf))
+        greedy_goals.append(next_goal)
+        remaining_goals.remove(next_goal)
+        current_node = next_goal
+
+    return greedy_goals
+
+def ask_use_greedy_goals():
+    """
+    Simple function to ask user if the goals should be sorted in greedy manner or not
+
+    Returns:
+      Boolean answer by user
+    """
+
+    while True:
+      answer = input("Use the greedy goals sorting method? (Y/N)")
+      if answer == "Y" or answer == "y":
+          return True
+      elif answer == "N" or answer == "n":
+          return False
+      else:
+        print(f"Invalid repsonse. Please type either Y or N")

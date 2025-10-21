@@ -1,5 +1,6 @@
-from utility import show_maze_options, find_start_goals, open_maze_file, update_maze_with_path
+from utility import show_maze_options, find_start_goals, open_maze_file, update_maze_with_path, ask_use_greedy_goals, greedy_goals_sorting
 from visual import visualize_maze
+from heuristic import HeuristicFn
 from search_algorithm import dfs_search
 
 # Show the options of mazes
@@ -7,11 +8,18 @@ file_path, title = show_maze_options(algo_used="DFS", is_multiple=True)
 maze_data = open_maze_file(file_path) # Open the maze file to get the maze data
 
 start, goals = find_start_goals(maze_data) # Find the start and goal points
+final_goals = goals
 new_start = start
 ne = md = mf = 0
 final_path = []
 
-for goal in goals:
+use_greedy_sort = ask_use_greedy_goals()
+
+if use_greedy_sort:
+  greedy_goals = greedy_goals_sorting(start, goals, HeuristicFn.MANHATTAN)
+  final_goals = greedy_goals
+
+for goal in final_goals:
   # Run the DFS search algorithm
   path, expanded_nodes, depth, fringe = dfs_search(maze_data, new_start, goal, md, mf)
   final_path = final_path + path

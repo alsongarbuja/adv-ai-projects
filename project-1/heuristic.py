@@ -1,6 +1,10 @@
 import math
+from enum import Enum
 
-from utility import HeuristicFn
+class HeuristicFn(Enum):
+    MANHATTAN = "Manhattan"
+    EUCLIDEAN = "Euclidean"
+    CHEBYSHEV = "Chebyshev"
 
 def heuristic_calculation(current: tuple[int, int], goal: tuple[int, int], function_to_use: HeuristicFn = HeuristicFn.MANHATTAN):
   if function_to_use == HeuristicFn.EUCLIDEAN:

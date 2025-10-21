@@ -1,4 +1,4 @@
-from utility import show_maze_options, find_start_goals, open_maze_file, update_maze_with_path, HeuristicFn, show_heuristic_options, ask_allow_diagonal
+from utility import show_maze_options, find_start_goals, open_maze_file, update_maze_with_path, show_heuristic_options, ask_allow_diagonal, greedy_goals_sorting, ask_use_greedy_goals
 from visual import visualize_maze
 from search_algorithm import a_star_search
 
@@ -8,13 +8,19 @@ maze_data = open_maze_file(file_path) # Open the maze file to get the maze data
 
 hf = show_heuristic_options() # Show options of heuristic function
 allow_diagonal = ask_allow_diagonal()
+use_greedy_sort = ask_use_greedy_goals()
 
 start, goals = find_start_goals(maze_data) # Find the start and goal points
 new_start = start
+final_goals = goals
 ne = md = mf = 0
 final_path = []
 
-for goal in goals:
+if use_greedy_sort:
+  greedy_goals = greedy_goals_sorting(start, goals, hf)
+  final_goals = greedy_goals
+
+for goal in final_goals:
   # Run the a star search algorithm
   path, expanded_nodes, depth, fringe = a_star_search(
     maze_data,
