@@ -100,6 +100,22 @@ def show_heuristic_options():
 
     return list(HeuristicFn)[file_index]
 
+def ask_allow_diagonal():
+    """
+    Simple function to ask user if diagonal movement is allowed or not
+
+    Returns:
+      Boolean answer by user
+    """
+
+    while True:
+      answer = input("Allow diagonal movement? (Y/N)")
+      if answer == "Y" or answer == "y":
+          return True
+      elif answer == "N" or answer == "n":
+          return False
+      else:
+        print(f"Invalid index. Please choose index between 0 - {len(HeuristicFn)-1}")
 
 def find_start_goals(maze: list[list[str]]) -> tuple[tuple[int, int], list[tuple[int, int]]]:
     """

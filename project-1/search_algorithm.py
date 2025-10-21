@@ -212,7 +212,9 @@ def a_star_search(
           h_cost = heuristic_calculation(neighbor, goal, heuristic)
           new_f_cost = new_g_cost + h_cost
           new_path = path + [neighbor]
-          heapq.heappush(frontier, (new_f_cost, new_g_cost if heuristic != HeuristicFn.CHEBYSHEV else -new_g_cost, neighbor, new_path))
+          heapq.heappush(frontier, (new_f_cost, new_g_cost, neighbor, new_path))
+          # Use the -new_g_cost when using Chebyshev heuristic function and want less node expanded in open maze
+          # heapq.heappush(frontier, (new_f_cost, -new_g_cost, neighbor, new_path))
 
   # If frontier is empty before end goal is found
   return (None, None, None, None)

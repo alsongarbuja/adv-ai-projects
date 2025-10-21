@@ -1,4 +1,4 @@
-from utility import show_maze_options, find_start_goals, open_maze_file, update_maze_with_path, HeuristicFn, show_heuristic_options
+from utility import show_maze_options, find_start_goals, open_maze_file, update_maze_with_path, HeuristicFn, show_heuristic_options, ask_allow_diagonal
 from visual import visualize_maze
 from search_algorithm import a_star_search
 
@@ -9,9 +9,10 @@ maze_data = open_maze_file(file_path) # Open the maze file to get the maze data
 start, goals = find_start_goals(maze_data) # Find the start and goal points
 
 hf = show_heuristic_options() # Show option for heuristic functions
+allow_diagonal = ask_allow_diagonal()
 
 # Run the a star search algorithm
-path, ne, md, mf = a_star_search(maze_data, start, goals[0], hf, allow_diagonal=True if hf != HeuristicFn.MANHATTAN else False)
+path, ne, md, mf = a_star_search(maze_data, start, goals[0], hf, allow_diagonal=allow_diagonal)
 
 # Update the maze data with solution path
 solved_maze = update_maze_with_path(maze_data, path)
