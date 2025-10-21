@@ -13,7 +13,7 @@ final_path = []
 
 for goal in goals:
   # Run the DFS search algorithm
-  path, expanded_nodes, depth, fringe = dfs_search(maze_data, new_start, goal)
+  path, expanded_nodes, depth, fringe = dfs_search(maze_data, new_start, goal, md, mf)
   final_path = final_path + path
   ne += expanded_nodes
   md = depth

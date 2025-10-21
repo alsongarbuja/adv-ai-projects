@@ -1,4 +1,4 @@
-from utility import show_maze_options, find_start_goals, open_maze_file, update_maze_with_path, HeuristicFn, show_heuristic_options, ask_allow_diagonal
+from utility import show_maze_options, find_start_goals, open_maze_file, update_maze_with_path, show_heuristic_options, ask_allow_diagonal
 from visual import visualize_maze
 from search_algorithm import a_star_search
 

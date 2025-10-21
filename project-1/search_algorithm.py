@@ -10,7 +10,6 @@ def bfs_search(
     goal: tuple[int, int],
     depth: int = 0,
     fringe: int = 0,
-    nodes: int = 0,
   ):
   """
   Finds the shortest path of the maze using Breadth first search algorithm
@@ -22,7 +21,6 @@ def bfs_search(
     goal: Tuple containing end coordinate
     depth: Maximum depth from previous loop, default 0
     fringe: Maximum fringe from previous loop, default 0
-    nodes: Number of nodes expanded from previous loop, default 0
 
   Returns:
     Tuple containing the path list, total nodes expanded, maximum depth, maximum fringe
@@ -39,7 +37,7 @@ def bfs_search(
   # Variables for metrics
   max_depth = depth
   max_fringe = fringe
-  nodes_expanded = nodes
+  nodes_expanded = 0
 
   # Directions to traverse (up, down, left and right)
   directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
@@ -77,7 +75,6 @@ def dfs_search(
     goal: tuple[int, int],
     depth: int = 0,
     fringe: int = 0,
-    nodes: int = 0,
   ):
   """
   Finds the shortest path of the maze using Depth first search algorithm
@@ -89,7 +86,6 @@ def dfs_search(
     goal: Tuple containing end coordinate
     depth: Maximum depth from previous loop, default 0
     fringe: Maximum fringe from previous loop, default 0
-    nodes: Number of nodes expanded from previous loop, default 0
 
   Returns:
     Tuple containing the path list, total nodes expanded, maximum depth, maximum fringe
@@ -106,7 +102,7 @@ def dfs_search(
   # Variables for metrics
   max_depth = depth
   max_fringe = fringe
-  nodes_expanded = nodes
+  nodes_expanded = 0
 
   # Directions to traverse (up, down, left and right)
   directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
@@ -151,7 +147,6 @@ def a_star_search(
     allow_diagonal: bool = False,
     depth: int = 0,
     fringe: int = 0,
-    nodes: int = 0,
   ):
   """
   Finds the shortest path of the maze using A star search algorithm
@@ -165,7 +160,6 @@ def a_star_search(
     allow_diagonal: Boolean to determine if diagonal movement is allowed or not, default False
     depth: Maximum depth from previous loop, default 0
     fringe: Maximum fringe from previous loop, default 0
-    nodes: Number of nodes expanded from previous loop, default 0
 
   Returns:
     Tuple containing the path list, total nodes expanded, maximum depth, maximum fringe
@@ -182,7 +176,7 @@ def a_star_search(
   # Variables for metrics
   max_depth = depth
   max_fringe = fringe
-  nodes_expanded = nodes
+  nodes_expanded = 0
 
   # Directions to traverse (up, down, left and right) and (down-left, down-right, up-left and up-right) for diagonal movement
   directions = [(-1, 0), (1, 0), (0, -1), (0, 1)] if not allow_diagonal else [(-1, 0), (1, 0), (0, -1), (0, 1), (1, -1), (1, 1), (-1, -1), (-1, 1)]
