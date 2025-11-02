@@ -3,6 +3,8 @@ import time
 import math
 import os
 
+# from minimax import MiniMaxAgent
+
 class BreakthroughGame:
   def __init__(self):
     pygame.init()
@@ -242,7 +244,7 @@ class BreakthroughGame:
 
   def ai_move_minimax(self, function_type):
     pass
-    # board, nodes, piece = MinimaxAgent(self.boardmatrix, self.turn, 3, function_type).minimax_decision()
+    # board, nodes, piece = MiniMaxAgent(self.boardmatrix, self.turn, 3, function_type).minimax_search()
     # self.boardmatrix = board.getMatrix()
     # if self.turn == 1:
     #     self.total_nodes_1 += nodes
