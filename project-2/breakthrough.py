@@ -1,4 +1,3 @@
-
 initialBoardMatrix = [[1, 1, 1, 1, 1, 1, 1, 1],
                         [1, 1, 1, 1, 1, 1, 1, 1],
                         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -35,18 +34,22 @@ class Action:
     self.turn = turn
 
 class State:
-  def __init__(self, boardmatrix=None, currentTurn=0, blackPositions=None, whitePositions=None, width=8, height=8):
+  def __init__(self, boardmatrix=None, currentTurn=0, blackPositions=None, whitePositions=None, width=8, height=8, num_black_pieces=0, num_white_pieces=0):
     self.currentTurn = currentTurn
-    self.boardmatrix = initialBoardMatrix if boardmatrix is None else boardmatrix
-    self.num_black_pieces = 0
-    self.num_white_pieces = 0
+    self.num_black_pieces = num_black_pieces
+    self.num_white_pieces = num_white_pieces
     self.width = width
     self.height = height
-    self.blackPositions = []
-    self.whitePositions = []
+    self.blackPositions = [] if blackPositions is None else blackPositions
+    self.whitePositions = [] if whitePositions is None else whitePositions
 
-    if blackPositions is None or whitePositions is None:
-      self.initialPiecesPositions()
+    if boardmatrix is not None:
+      for x in range(self.height):
+        for y in range(self.width):
+          if boardmatrix[x][y] == 1:
+            self.blackPositions.append((x, y))
+          if boardmatrix[x][y] == 2:
+            self.whitePositions.append((x, y))
 
   def move_piece(self, action: Action):
     """
@@ -64,27 +67,27 @@ class State:
 
     # If the turn is black's
     if action.turn == 0:
-      if action.coord in black_positions:
+      if action.coord in self.blackPositions:
         index = black_positions.index(action.coord)
-        new_pos = move_single_piece(action.coord, action.direction, self.currentTurn)
+        new_pos = move_single_piece(action.coord, action.direction, action.turn)
         black_positions[index] = new_pos
-        if new_pos in white_positions:
+        if new_pos in self.whitePositions:
           white_positions.remove(new_pos)
       else:
         print("Action is not valid")
 
     # If the turn is white's
     else:
-      if action.coord in white_positions:
+      if action.coord in self.whitePositions:
         index = white_positions.index(action.coord)
-        new_pos = move_single_piece(action.coord, action.direction, self.currentTurn)
+        new_pos = move_single_piece(action.coord, action.direction, action.turn)
         white_positions[index] = new_pos
-        if new_pos in black_positions:
-          self.blackPositions.remove(new_pos)
+        if new_pos in self.blackPositions:
+          black_positions.remove(new_pos)
       else:
         print("Action is not valid")
 
-    new_state = State(blackPositions=black_positions, whitePositions=white_positions, currentTurn=self.alter_turn())
+    new_state = State(blackPositions=black_positions, whitePositions=white_positions, currentTurn=self.alter_turn(), num_black_pieces=self.num_black_pieces, num_white_pieces=self.num_white_pieces)
     return new_state
 
   def get_actions(self, pos=None):
@@ -104,7 +107,6 @@ class State:
         test_move = move_single_piece(pos, direc, self.currentTurn)
         if (test_move not in to_use_positions) and (-1 < test_move[0] < self.height) and (-1 < test_move[1] < self.width):
           if (direc == 1 and test_move not in opponent_positions) or direc != 1:
-            print(test_move, "->", pos)
             available_actions.append(Action(pos, direc, self.currentTurn))
 
     return available_actions
@@ -117,25 +119,6 @@ class State:
       Integer representing next player turn (0 - Black, 1 - White)
     """
     return 1 + (self.currentTurn * -1)
-
-  def initialPiecesPositions(self):
-    """
-    Simple position to append coordinates of black and white pieces positions
-    """
-    for x in range(self.height):
-      for y in range(self.width):
-        if self.boardmatrix[x][y] == 1:
-          self.blackPositions.append((x, y))
-        if self.boardmatrix[x][y] == 2:
-          self.whitePositions.append((x, y))
-
-  def reset(self):
-    """
-    Simple function to reset the state
-    """
-    self.boardmatrix = initialBoardMatrix
-    self.currentTurn = 0
-    self.initialPiecesPositions()
 
   def is_game_state(self, type = 0):
     """
@@ -150,7 +133,7 @@ class State:
     piecesInBase = 0
 
     for coord in self.blackPositions:
-      if coord[0] == len(self.boardmatrix)-1:
+      if coord[0] == self.height-1:
         piecesInBase += 1
     for coord in self.whitePositions:
       if coord[0] == 0:

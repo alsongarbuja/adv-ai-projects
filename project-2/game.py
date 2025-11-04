@@ -2,6 +2,7 @@ import pygame
 import time
 import math
 import os
+import copy
 
 from breakthrough import initialBoardMatrix
 from minimax import MiniMaxAgent
@@ -30,7 +31,7 @@ class BreakthroughGame:
     self.new_x = 0
     self.new_y = 0
 
-    self.boardmatrix = initialBoardMatrix
+    self.boardmatrix = copy.deepcopy(initialBoardMatrix)
 
     self.total_nodes_1 = 0
     self.total_nodes_2 = 0
@@ -53,7 +54,7 @@ class BreakthroughGame:
     if self.status == 5:
       if self.turn == 0:
         start = time.process_time()
-        self.ai_move(2, 2)
+        self.ai_move(1, 2)
         self.total_time_1 += (time.process_time() - start)
         self.total_step_1 += 1
 
@@ -65,7 +66,7 @@ class BreakthroughGame:
 
       elif self.turn == 1:
         start = time.process_time()
-        self.ai_move(2, 2)
+        self.ai_move(1, 2)
         self.total_time_2 += (time.process_time() - start)
         self.total_step_2 += 1
 
@@ -79,31 +80,33 @@ class BreakthroughGame:
       if event.type == pygame.QUIT:
         exit()
       elif event.type == pygame.MOUSEBUTTONDOWN and self.isreset(event.pos):
-        self.boardmatrix = initialBoardMatrix
+        self.boardmatrix = copy.deepcopy(initialBoardMatrix)
         self.status = 0
         self.turn = 0
       elif event.type == pygame.MOUSEBUTTONDOWN and self.iscomputer(event.pos):
         self.ai_move_minimax(1)
-      # elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 0:
-        # x, y = event.pos
-        # coor_y = math.floor(x / self.sizeofcell)
-        # coor_x = math.floor(y / self.sizeofcell)
-        # if self.boardmatrix[coor_x][coor_y] == self.turn:
-        #   self.status = 1
-        #   self.ori_x = math.floor(x / self.sizeofcell)
-        #   self.ori_y = math.floor(y / self.sizeofcell)
-        # elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 1:
-        #   x, y = event.pos
-        #   self.new_y = math.floor(x / self.sizeofcell)
-        #   self.new_x = math.floor(y / self.sizeofcell)
-        #   if self.isabletomove():
-        #     self.movepiece()
-        #     if (self.new_x == 7 and self.boardmatrix[self.new_x][self.new_y] == 1) \
-        #       or (self.new_x == 0 and self.boardmatrix[self.new_x][self.new_y] == 2):
-        #       self.status = 3
-        #   elif self.boardmatrix[self.new_x][self.new_y] == self.boardmatrix[self.ori_x][self.ori_y]:
-        #     self.ori_x = self.new_x
-        #     self.ori_y = self.new_y
+      elif event.type == pygame.MOUSEBUTTONDOWN and self.isauto(event.pos):
+        self.status = 5
+      elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 0:
+        x, y = event.pos
+        coor_y = math.floor(x / self.sizeofcell)
+        coor_x = math.floor(y / self.sizeofcell)
+        if self.boardmatrix[coor_x][coor_y] == self.turn+1:
+            self.status = 1
+            self.ori_y = math.floor(x / self.sizeofcell)
+            self.ori_x = math.floor(y / self.sizeofcell)
+      elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 1:
+        x, y = event.pos
+        self.new_y = math.floor(x / self.sizeofcell)
+        self.new_x = math.floor(y / self.sizeofcell)
+        if self.isabletomove():
+          self.movepiece()
+          if (self.new_x == 7 and self.boardmatrix[self.new_x][self.new_y] == 1) \
+            or (self.new_x == 0 and self.boardmatrix[self.new_x][self.new_y] == 2):
+            self.status = 3
+        elif self.boardmatrix[self.new_x][self.new_y] == self.boardmatrix[self.ori_x][self.ori_y]:
+          self.ori_x = self.new_x
+          self.ori_y = self.new_y
 
     self.display()
 
@@ -117,7 +120,7 @@ class BreakthroughGame:
     self.whitepiece = pygame.image.load_extended(os.path.join('assets', 'white-piece.png'))
     self.whitepiece = pygame.transform.scale(self.whitepiece, (self.sizeofcell - 20, self.sizeofcell - 20))
     self.outline = pygame.image.load_extended(os.path.join('assets', 'outline.png'))
-    self.outline = pygame.transform.scale(self.outline, (self.sizeofcell, self.sizeofcell))
+    self.outline = pygame.transform.scale(self.outline, (self.sizeofcell - 10, self.sizeofcell - 10))
     self.reset = pygame.image.load_extended(os.path.join('assets', 'reset.jpg'))
     self.reset = pygame.transform.scale(self.reset, (80, 80))
     self.winner = pygame.image.load_extended(os.path.join('assets', 'winner.png'))
@@ -133,11 +136,11 @@ class BreakthroughGame:
     self.screen.blit(self.computer, (590, 200))
     self.screen.blit(self.auto, (590, 340))
     for i in range(8):
-        for j in range(8):
-            if self.boardmatrix[i][j] == 1:
-                self.screen.blit(self.blackpiece, (self.sizeofcell * j + 10, self.sizeofcell * i + 10))
-            elif self.boardmatrix[i][j] == 2:
-                self.screen.blit(self.whitepiece, (self.sizeofcell * j + 10, self.sizeofcell * i + 10))
+      for j in range(8):
+        if self.boardmatrix[i][j] == 1:
+          self.screen.blit(self.blackpiece, (self.sizeofcell * j + 15, self.sizeofcell * i + 15))
+        elif self.boardmatrix[i][j] == 2:
+          self.screen.blit(self.whitepiece, (self.sizeofcell * j + 15, self.sizeofcell * i + 15))
     if self.status == 1:
         # only downward is acceptable
         if self.boardmatrix[self.ori_x][self.ori_y] == 1:
@@ -150,15 +153,15 @@ class BreakthroughGame:
             # left down
             if y1 >= 0 and self.boardmatrix[x1][y1] != 1:
                 self.screen.blit(self.outline,
-                                  (self.sizeofcell * y1, self.sizeofcell * x1))
+                                  (self.sizeofcell * y1 + 4, self.sizeofcell * x1 + 4))
             # right down
             if y2 <= 7 and self.boardmatrix[x2][y2] != 1:
                 self.screen.blit(self.outline,
-                                  (self.sizeofcell * y2, self.sizeofcell * x2))
+                                  (self.sizeofcell * y2 + 4, self.sizeofcell * x2 + 4))
             # down
             if x3 <= 7 and self.boardmatrix[x3][y3] == 0:
                 self.screen.blit(self.outline,
-                                  (self.sizeofcell * y3, self.sizeofcell * x3))
+                                  (self.sizeofcell * y3 + 4, self.sizeofcell * x3 + 4))
 
         if self.boardmatrix[self.ori_x][self.ori_y] == 2:
             x1 = self.ori_x - 1
@@ -170,19 +173,19 @@ class BreakthroughGame:
             # left up
             if y1 >= 0 and self.boardmatrix[x1][y1] != 2:
                 self.screen.blit(self.outline,
-                                  (self.sizeofcell * y1, self.sizeofcell * x1))
+                                  (self.sizeofcell * y1 + 4, self.sizeofcell * x1 + 4))
             # right up
             if y2 <= 7 and self.boardmatrix[x2][y2] != 2:
                 self.screen.blit(self.outline,
-                                  (self.sizeofcell * y2, self.sizeofcell * x2))
+                                  (self.sizeofcell * y2 + 4, self.sizeofcell * x2 + 4))
             # up
             if x3 >= 0 and self.boardmatrix[x3][y3] == 0:
                 self.screen.blit(self.outline,
-                                  (self.sizeofcell * y3, self.sizeofcell * x3))
+                                  (self.sizeofcell * y3 + 4, self.sizeofcell * x3 + 4))
     if self.status == 3:
         self.screen.blit(self.winner, (100, 100))
 
-  def movechess(self):
+  def movepiece(self):
     self.boardmatrix[self.new_x][self.new_y] = self.boardmatrix[self.ori_x][self.ori_y]
     self.boardmatrix[self.ori_x][self.ori_y] = 0
     self.turn = 1 + (self.turn * -1)
@@ -229,12 +232,11 @@ class BreakthroughGame:
   def ai_move_minimax(self, function_type):
     board, nodes, piece = MiniMaxAgent(self.boardmatrix, self.turn, 3, function_type).minimax_search()
     self.boardmatrix = board.get_matrix()
-    if self.turn == 1:
+    if self.turn == 0:
         self.total_nodes_1 += nodes
-        self.turn = 2
     elif self.turn == 2:
         self.total_nodes_2 += nodes
-        self.turn = 1
+    self.turn = 1 + (self.turn * -1)
     self.eat_piece = 16 - piece
     if self.isgoalstate():
       self.status = 3

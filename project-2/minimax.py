@@ -16,7 +16,7 @@ class MiniMaxAgent:
       return state.get_value(self.playerTurn)
     value = -np.inf
     for action in state.get_actions():
-      value = max(value, self.mini(state.move_piece(action)), depth + 1)
+      value = max(value, self.mini(state.move_piece(action), depth + 1))
       self.nodes += 1
     return value
 
@@ -25,7 +25,7 @@ class MiniMaxAgent:
       return state.get_value(self.playerTurn)
     value = np.inf
     for action in state.get_actions():
-      value = min(value, self.maxi(state.move_piece(action)), depth + 1)
+      value = min(value, self.maxi(state.move_piece(action), depth + 1))
       self.nodes += 1
     return value
 
@@ -46,6 +46,7 @@ class MiniMaxAgent:
         action_to_do = action
         value = min_result
 
+    print("Action done: ", action.coord, action.direction, action.turn)
     next_state = currentState.move_piece(action_to_do)
 
     if self.playerTurn == 0:
