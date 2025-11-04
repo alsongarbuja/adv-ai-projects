@@ -3,7 +3,8 @@ import time
 import math
 import os
 
-# from minimax import MiniMaxAgent
+from breakthrough import initialBoardMatrix
+from minimax import MiniMaxAgent
 
 class BreakthroughGame:
   def __init__(self):
@@ -22,21 +23,14 @@ class BreakthroughGame:
     self.computer = None
 
     self.status = 0
-    self.turn = 1
+    self.turn = 0
 
     self.ori_x = 0
     self.ori_y = 0
     self.new_x = 0
     self.new_y = 0
 
-    self.boardmatrix = [[1, 1, 1, 1, 1, 1, 1, 1],
-                        [1, 1, 1, 1, 1, 1, 1, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0],
-                        [2, 2, 2, 2, 2, 2, 2, 2],
-                        [2, 2, 2, 2, 2, 2, 2, 2]]
+    self.boardmatrix = initialBoardMatrix
 
     self.total_nodes_1 = 0
     self.total_nodes_2 = 0
@@ -57,7 +51,7 @@ class BreakthroughGame:
     self.screen.fill([255, 255, 255])
 
     if self.status == 5:
-      if self.turn == 1:
+      if self.turn == 0:
         start = time.process_time()
         self.ai_move(2, 2)
         self.total_time_1 += (time.process_time() - start)
@@ -69,7 +63,7 @@ class BreakthroughGame:
               'time_per_move_1 = ', self.total_time_1 / self.total_step_1,
               'have_eaten = ', self.eat_piece)
 
-      elif self.turn == 2:
+      elif self.turn == 1:
         start = time.process_time()
         self.ai_move(2, 2)
         self.total_time_2 += (time.process_time() - start)
@@ -85,38 +79,31 @@ class BreakthroughGame:
       if event.type == pygame.QUIT:
         exit()
       elif event.type == pygame.MOUSEBUTTONDOWN and self.isreset(event.pos):
-        self.boardmatrix = [[1, 1, 1, 1, 1, 1, 1, 1],
-                            [1, 1, 1, 1, 1, 1, 1, 1],
-                            [0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0],
-                            [2, 2, 2, 2, 2, 2, 2, 2],
-                            [2, 2, 2, 2, 2, 2, 2, 2]]
+        self.boardmatrix = initialBoardMatrix
         self.status = 0
-        self.turn = 1
+        self.turn = 0
       elif event.type == pygame.MOUSEBUTTONDOWN and self.iscomputer(event.pos):
-        self.ai_move_alphabeta(1)
-      elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 0:
-        x, y = event.pos
-        coor_y = math.floor(x / self.sizeofcell)
-        coor_x = math.floor(y / self.sizeofcell)
-        if self.boardmatrix[coor_x][coor_y] == self.turn:
-          self.status = 1
-          self.ori_x = math.floor(x / self.sizeofcell)
-          self.ori_y = math.floor(y / self.sizeofcell)
-        elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 1:
-          x, y = event.pos
-          self.new_y = math.floor(x / self.sizeofcell)
-          self.new_x = math.floor(y / self.sizeofcell)
-          if self.isabletomove():
-            self.movepiece()
-            if (self.new_x == 7 and self.boardmatrix[self.new_x][self.new_y] == 1) \
-              or (self.new_x == 0 and self.boardmatrix[self.new_x][self.new_y] == 2):
-              self.status = 3
-          elif self.boardmatrix[self.new_x][self.new_y] == self.boardmatrix[self.ori_x][self.ori_y]:
-            self.ori_x = self.new_x
-            self.ori_y = self.new_y
+        self.ai_move_minimax(1)
+      # elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 0:
+        # x, y = event.pos
+        # coor_y = math.floor(x / self.sizeofcell)
+        # coor_x = math.floor(y / self.sizeofcell)
+        # if self.boardmatrix[coor_x][coor_y] == self.turn:
+        #   self.status = 1
+        #   self.ori_x = math.floor(x / self.sizeofcell)
+        #   self.ori_y = math.floor(y / self.sizeofcell)
+        # elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 1:
+        #   x, y = event.pos
+        #   self.new_y = math.floor(x / self.sizeofcell)
+        #   self.new_x = math.floor(y / self.sizeofcell)
+        #   if self.isabletomove():
+        #     self.movepiece()
+        #     if (self.new_x == 7 and self.boardmatrix[self.new_x][self.new_y] == 1) \
+        #       or (self.new_x == 0 and self.boardmatrix[self.new_x][self.new_y] == 2):
+        #       self.status = 3
+        #   elif self.boardmatrix[self.new_x][self.new_y] == self.boardmatrix[self.ori_x][self.ori_y]:
+        #     self.ori_x = self.new_x
+        #     self.ori_y = self.new_y
 
     self.display()
 
@@ -198,10 +185,7 @@ class BreakthroughGame:
   def movechess(self):
     self.boardmatrix[self.new_x][self.new_y] = self.boardmatrix[self.ori_x][self.ori_y]
     self.boardmatrix[self.ori_x][self.ori_y] = 0
-    if self.turn == 1:
-        self.turn = 2
-    elif self.turn == 2:
-        self.turn = 1
+    self.turn = 1 + (self.turn * -1)
     self.status = 0
 
   def isreset(self, pos):
@@ -243,19 +227,18 @@ class BreakthroughGame:
         return self.ai_move_alphabeta(evaluation)
 
   def ai_move_minimax(self, function_type):
-    pass
-    # board, nodes, piece = MiniMaxAgent(self.boardmatrix, self.turn, 3, function_type).minimax_search()
-    # self.boardmatrix = board.getMatrix()
-    # if self.turn == 1:
-    #     self.total_nodes_1 += nodes
-    #     self.turn = 2
-    # elif self.turn == 2:
-    #     self.total_nodes_2 += nodes
-    #     self.turn = 1
-    # self.eat_piece = 16 - piece
-    # if self.isgoalstate():
-    #     self.status = 3
-          #print(self.boardmatrix)
+    board, nodes, piece = MiniMaxAgent(self.boardmatrix, self.turn, 3, function_type).minimax_search()
+    self.boardmatrix = board.get_matrix()
+    if self.turn == 1:
+        self.total_nodes_1 += nodes
+        self.turn = 2
+    elif self.turn == 2:
+        self.total_nodes_2 += nodes
+        self.turn = 1
+    self.eat_piece = 16 - piece
+    if self.isgoalstate():
+      self.status = 3
+      print(self.boardmatrix)
 
   def ai_move_alphabeta(self, function_type):
     pass
@@ -274,12 +257,13 @@ class BreakthroughGame:
   def isgoalstate(self, base=0):
     if base == 0:
         if 2 in self.boardmatrix[0] or 1 in self.boardmatrix[7]:
+            print("2 or 1")
             return True
         else:
             for line in self.boardmatrix:
                 if 1 in line or 2 in line:
                     return False
-        return True
+        # return True
     else:
         count = 0
         for i in self.boardmatrix[0]:

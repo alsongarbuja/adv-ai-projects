@@ -1,26 +1,56 @@
 import numpy as np
 
+from breakthrough import State
+
 class MiniMaxAgent:
-  def __init__(self, state, playerTurn, maxDepth = 3, function_type="defensive"):
-    self.boardState = state
+  def __init__(self, boardmatrix, playerTurn, maxDepth = 3, function_type="defensive"):
+    self.boardmatrix = boardmatrix
     self.playerTurn = playerTurn
     self.maxDepth = maxDepth
     self.function_type = function_type
+    self.nodes = 0
+    self.piece_num = 0
+
+  def maxi(self, state: State, depth):
+    if depth == self.maxDepth or state.is_game_state():
+      return state.get_value(self.playerTurn)
+    value = -np.inf
+    for action in state.get_actions():
+      value = max(value, self.mini(state.move_piece(action)), depth + 1)
+      self.nodes += 1
+    return value
+
+  def mini(self, state: State, depth):
+    if depth == self.maxDepth or state.is_game_state():
+      return state.get_value(self.playerTurn)
+    value = np.inf
+    for action in state.get_actions():
+      value = min(value, self.maxi(state.move_piece(action)), depth + 1)
+      self.nodes += 1
+    return value
 
   def minimax_search(self):
-    def maximize_value():
-      v = -np.inf
-      for a in game.actions(self.boardState):
-        v = max(v, minimizing_value(game.result(self.boardState, a)))
-      return v
+    action_to_do = None
 
-    def minimizing_value(state):
-      v = np.inf
-      for a in game.actions(state):
-        v = min(v, maximize_value(game.result(state, a)))
-      return v
+    currentState = State(self.boardmatrix, self.playerTurn)
 
-    if self.playerTurn == 1:
-      return maximize_value()
+    value = -np.inf
+    for action in currentState.get_actions():
+      self.nodes += 1
+      state_ahead = currentState.move_piece(action)
+      if state_ahead.is_game_state():
+        action_to_do = action
+        break
+      min_result = self.mini(state_ahead, 1)
+      if min_result > value:
+        action_to_do = action
+        value = min_result
 
-    return minimizing_value()
+    next_state = currentState.move_piece(action_to_do)
+
+    if self.playerTurn == 0:
+      self.piece_num = next_state.num_black_pieces
+    elif self.playerTurn == 1:
+      self.piece_num = next_state.num_white_pieces
+
+    return next_state, self.nodes, self.piece_num
