@@ -7,6 +7,15 @@ initialBoardMatrix = [[1, 1, 1, 1, 1, 1, 1, 1],
                         [2, 2, 2, 2, 2, 2, 2, 2],
                         [2, 2, 2, 2, 2, 2, 2, 2]]
 
+def alter_turn(turn) -> int:
+    """
+    Simple function to alter the players turn and return it
+
+    Returns:
+      Integer representing next player turn (0 - Black, 1 - White)
+    """
+    return 1 + (turn * -1)
+
 def move_single_piece(initialPosition, direction, currentTurn):
   """
   Move a single piece in the given direction
@@ -62,8 +71,8 @@ class State:
       State after moving the piece
     """
 
-    black_positions = self.blackPositions
-    white_positions = self.whitePositions
+    black_positions = list(self.blackPositions)
+    white_positions = list(self.whitePositions)
 
     # If the turn is black's
     if action.turn == 0:
@@ -77,7 +86,7 @@ class State:
         print("Action is not valid")
 
     # If the turn is white's
-    else:
+    elif action.turn == 1:
       if action.coord in self.whitePositions:
         index = white_positions.index(action.coord)
         new_pos = move_single_piece(action.coord, action.direction, action.turn)
@@ -87,7 +96,7 @@ class State:
       else:
         print("Action is not valid")
 
-    new_state = State(blackPositions=black_positions, whitePositions=white_positions, currentTurn=self.alter_turn(), num_black_pieces=self.num_black_pieces, num_white_pieces=self.num_white_pieces)
+    new_state = State(blackPositions=black_positions, whitePositions=white_positions, currentTurn=alter_turn(action.turn), num_black_pieces=self.num_black_pieces, num_white_pieces=self.num_white_pieces, height=self.height, width=self.width)
     return new_state
 
   def get_actions(self, pos=None):
@@ -111,15 +120,6 @@ class State:
 
     return available_actions
 
-  def alter_turn(self):
-    """
-    Simple function to alter the players turn and return it
-
-    Returns:
-      Integer representing next player turn (0 - Black, 1 - White)
-    """
-    return 1 + (self.currentTurn * -1)
-
   def is_game_state(self, type = 0):
     """
     A function to check if the state is in game finished state or not
@@ -128,28 +128,67 @@ class State:
       type: A optional integer to define the type of game (0 - Normal Breakthrough, 1 - 3 in Base Breakthrough)
     """
 
-    to_complete_pieces_in_base = 1 if type == 0 else 3
-    to_complete_remaining_pieces = 0 if type == 0 else 2
-    piecesInBase = 0
+    if type == 0:
+      if 0 in [item[0] for item in self.whitePositions] or len(self.blackPositions) == 0:
+        return 2
+      if self.height-1 in [item[0] for item in self.blackPositions] or len(self.whitePositions) == 0:
+        return 1
+      return 0
+    else:
+      piecesInBase = 0
+      for coord in self.blackPositions:
+        if coord[0] == self.height-1:
+          piecesInBase += 1
+      for coord in self.whitePositions:
+        if coord[0] == 0:
+          piecesInBase += 1
 
-    for coord in self.blackPositions:
-      if coord[0] == self.height-1:
-        piecesInBase += 1
-    for coord in self.whitePositions:
-      if coord[0] == 0:
-        piecesInBase += 1
+      if piecesInBase == 3:
+        return True
 
-    if piecesInBase >= to_complete_pieces_in_base:
-      return True
-
-    if len(self.blackPositions) <= to_complete_remaining_pieces or len(self.whitePositions) <= to_complete_remaining_pieces:
-      return True
+      if len(self.blackPositions) <= 2 or len(self.whitePositions) <= 2:
+        return True
 
     return False
 
+  def myscore(self, turn):
+    if turn == 0:
+      return len(self.blackPositions) \
+        + sum(pos[0] for pos in self.blackPositions) + self.winningscore(turn)
+    elif turn == 1:
+      return len(self.whitePositions) \
+        + sum(7 - pos[0] for pos in self.whitePositions) + self.winningscore(turn)
+
+  def enemyscore(self, turn):
+    if turn == 0:
+        return len(self.whitePositions) \
+                + sum(7 - pos[0] for pos in self.whitePositions) + self.winningscore(turn)
+                #+ max(7 - pos[0] for pos in self.white_positions)\
+
+    elif turn == 1:
+        return len(self.blackPositions) \
+                + sum(pos[0] for pos in self.blackPositions) + self.winningscore(turn)
+
+  def winningscore(self, turn):
+    winningvalue = 200
+    if turn == 0:
+      if self.is_game_state() == 1:
+        return winningvalue
+      elif self.is_game_state() == 2:
+        return -winningvalue
+      else:
+        return 0
+    elif turn == 1:
+      if self.is_game_state() == 2:
+        return winningvalue
+      elif self.is_game_state() == 1:
+        return -winningvalue
+      else:
+        return 0
+
   def get_value(self, turn):
     # To implement
-    return 0
+    return 2 * self.myscore(turn) - 1 * self.enemyscore(turn)
 
   def get_matrix(self):
     matrix = [[0 for _ in range(self.width)] for _ in range(self.height)]

@@ -12,7 +12,7 @@ class MiniMaxAgent:
     self.piece_num = 0
 
   def maxi(self, state: State, depth):
-    if depth == self.maxDepth or state.is_game_state():
+    if depth == self.maxDepth or state.is_game_state() != 0:
       return state.get_value(self.playerTurn)
     value = -np.inf
     for action in state.get_actions():
@@ -21,7 +21,7 @@ class MiniMaxAgent:
     return value
 
   def mini(self, state: State, depth):
-    if depth == self.maxDepth or state.is_game_state():
+    if depth == self.maxDepth or state.is_game_state() != 0:
       return state.get_value(self.playerTurn)
     value = np.inf
     for action in state.get_actions():
@@ -32,7 +32,7 @@ class MiniMaxAgent:
   def minimax_search(self):
     action_to_do = None
 
-    currentState = State(self.boardmatrix, self.playerTurn)
+    currentState = State(boardmatrix=self.boardmatrix, currentTurn=self.playerTurn, width=8, height=8)
 
     value = -np.inf
     for action in currentState.get_actions():
