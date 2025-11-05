@@ -9,30 +9,67 @@ from breakthrough import initialBoardMatrix
 from minimax import MiniMaxAgent
 from button import Button
 
-class ScreenManager:
+class SceneManager:
+  """
+  Class to act as the manager of all the screens in the game
+  """
   def __init__(self):
-    self.screens = {}
-    self.current_screen = None
+    # Object of scene name and Scene (key-value pairs)
+    self.scenes = {}
+    # Object holding the current scene or None
+    self.current_scene = None
 
-  def add_screen(self, name, screen_obj):
-    self.screens[name] = screen_obj
+  def add_scene(self, name, scene_obj):
+    """
+    Function to add scene into the scenes object
 
-  def set_screen(self, name):
-    self.current_screen = self.screens.get(name)
+    Args:
+      name: Name of the scene
+      scene_obj: A Scene Object
+    """
+    self.scenes[name] = scene_obj
 
-  def handle_events(self, events):
-    if self.current_screen:
-      self.current_screen.handle_events(events)
+  def set_scene(self, name):
+    """
+    Function to set the scene to current scene
+
+    Args:
+      name: Name of the scene
+    """
+    self.current_scene = self.scenes.get(name)
+
+  def handle_events(self, events: list[pygame.Event]):
+    """
+    Function to handle events if the current scene have events
+
+    Args:
+      events: List of pygame Events
+    """
+    if self.current_scene:
+      self.current_scene.handle_events(events)
 
   def update(self):
-    if self.current_screen:
-      self.current_screen.update()
+    """
+    Function to handle update in the current scene
+    """
+    if self.current_scene:
+      self.current_scene.update()
 
   def draw(self, surface: pygame.Surface, font: pygame.font.Font):
-    if self.current_screen:
-      self.current_screen.draw(surface, font)
+    """
+    Function to handle drawing elements in scene in current scene
 
-class Screen:
+    Args:
+      surface: A pygame Surface
+      font: A pygame Font
+    """
+    if self.current_scene:
+      self.current_scene.draw(surface, font)
+
+class Scene:
+  """
+  Base class for scene
+  """
   def __init__(self, manager):
     self.manager = manager
 
@@ -45,38 +82,49 @@ class Screen:
   def draw(self, surface: pygame.Surface, font: pygame.font.Font):
     pass
 
-class MenuScreen(Screen):
-  def __init__(self, manager, width, Font: pygame.font.Font):
+class MenuScene(Scene):
+  """
+  Class for Menu Scene
+  """
+  def __init__(self, manager: SceneManager, width, height, Font: pygame.font.Font):
     super().__init__(manager)
     self.title = Font.render("Breakthrough", True, (255, 255, 255))
     self.width = width
+    self.height = height
+    self.PLAY_BTN = Button(text_input="Play", font=Font, base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2))
 
   def handle_events(self, events: list[pygame.Event]):
+    """
+    Function to handle events in the game
+
+    Args:
+      events: list of pygame events
+    """
     for e in events:
+      # If close button is pressed close the pygame window
       if e.type == pygame.QUIT:
         pygame.quit()
         sys.exit()
+      # If the play button is pressed change the scene to game scene
       elif e.type == pygame.MOUSEBUTTONDOWN:
-        self.manager.set_screen("game")
+        if self.PLAY_BTN.checkForInput(pygame.mouse.get_pos()):
+          self.manager.set_scene("game")
 
   def draw(self, surface, Font):
     surface.fill((0, 0, 0))
 
-    MENU_MOUSE_POS = pygame.mouse.get_pos()
+    surface.blit(self.title, (self.width // 2 - self.title.get_width() // 2, 80))
 
-    surface.blit(self.title, (self.width // 2 - self.title.get_width() // 2, 200))
-    PLAY_BTN = Button(text_input="Play", font=Font, base_color="#d7fcd4", hovering_color="white", pos=(100, 100))
-
-    for button in [PLAY_BTN]:
-      button.changeColor(MENU_MOUSE_POS)
+    for button in [self.PLAY_BTN]:
+      button.changeColor(pygame.mouse.get_pos())
       button.update(surface)
 
-class GameScreen(Screen):
-  def __init__(self, manager, screen: pygame.Surface, width: int, height: int):
+class GameScene(Scene):
+  def __init__(self, manager, scene: pygame.Surface, width: int, height: int):
     self.width, self.height = width, height
     self.sizeofcell = int(560/8)
-    self.screen = screen
-    self.screen.fill([255, 255, 255])
+    self.scene = scene
+    self.scene.fill([255, 255, 255])
 
     self.board = 0
     self.blackpiece = 0
@@ -112,7 +160,7 @@ class GameScreen(Screen):
   def update(self):
     # self.clock.tick(60)
 
-    self.screen.fill([255, 255, 255])
+    self.scene.fill([255, 255, 255])
 
     if self.status == 5:
       if self.turn == 0:
@@ -194,17 +242,17 @@ class GameScreen(Screen):
     self.auto = pygame.image.load_extended(os.path.join('assets', 'auto.png'))
     self.auto = pygame.transform.scale(self.auto, (80, 80))
 
-  def draw(self, screen, font):
-    self.screen.blit(self.board, (0, 0))
-    self.screen.blit(self.reset, (590, 50))
-    self.screen.blit(self.computer, (590, 200))
-    self.screen.blit(self.auto, (590, 340))
+  def draw(self, scene, font):
+    self.scene.blit(self.board, (0, 0))
+    self.scene.blit(self.reset, (590, 50))
+    self.scene.blit(self.computer, (590, 200))
+    self.scene.blit(self.auto, (590, 340))
     for i in range(8):
       for j in range(8):
         if self.boardmatrix[i][j] == 1:
-          self.screen.blit(self.blackpiece, (self.sizeofcell * j + 15, self.sizeofcell * i + 15))
+          self.scene.blit(self.blackpiece, (self.sizeofcell * j + 15, self.sizeofcell * i + 15))
         elif self.boardmatrix[i][j] == 2:
-          self.screen.blit(self.whitepiece, (self.sizeofcell * j + 15, self.sizeofcell * i + 15))
+          self.scene.blit(self.whitepiece, (self.sizeofcell * j + 15, self.sizeofcell * i + 15))
     if self.status == 1:
         # only downward is acceptable
         if self.boardmatrix[self.ori_x][self.ori_y] == 1:
@@ -216,15 +264,15 @@ class GameScreen(Screen):
             y3 = self.ori_y
             # left down
             if y1 >= 0 and self.boardmatrix[x1][y1] != 1:
-                self.screen.blit(self.outline,
+                self.scene.blit(self.outline,
                                   (self.sizeofcell * y1 + 4, self.sizeofcell * x1 + 4))
             # right down
             if y2 <= 7 and self.boardmatrix[x2][y2] != 1:
-                self.screen.blit(self.outline,
+                self.scene.blit(self.outline,
                                   (self.sizeofcell * y2 + 4, self.sizeofcell * x2 + 4))
             # down
             if x3 <= 7 and self.boardmatrix[x3][y3] == 0:
-                self.screen.blit(self.outline,
+                self.scene.blit(self.outline,
                                   (self.sizeofcell * y3 + 4, self.sizeofcell * x3 + 4))
 
         if self.boardmatrix[self.ori_x][self.ori_y] == 2:
@@ -236,18 +284,18 @@ class GameScreen(Screen):
             y3 = self.ori_y
             # left up
             if y1 >= 0 and self.boardmatrix[x1][y1] != 2:
-                self.screen.blit(self.outline,
+                self.scene.blit(self.outline,
                                   (self.sizeofcell * y1 + 4, self.sizeofcell * x1 + 4))
             # right up
             if y2 <= 7 and self.boardmatrix[x2][y2] != 2:
-                self.screen.blit(self.outline,
+                self.scene.blit(self.outline,
                                   (self.sizeofcell * y2 + 4, self.sizeofcell * x2 + 4))
             # up
             if x3 >= 0 and self.boardmatrix[x3][y3] == 0:
-                self.screen.blit(self.outline,
+                self.scene.blit(self.outline,
                                   (self.sizeofcell * y3 + 4, self.sizeofcell * x3 + 4))
     if self.status == 3:
-        self.screen.blit(self.winner, (100, 100))
+        self.scene.blit(self.winner, (100, 100))
 
   def movepiece(self):
     self.boardmatrix[self.new_x][self.new_y] = self.boardmatrix[self.ori_x][self.ori_y]
