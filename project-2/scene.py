@@ -7,6 +7,7 @@ import pygame
 
 from breakthrough import initialBoardMatrix
 from minimax import MiniMaxAgent
+from alphabeta import AlphaBetaAgent
 from button import Button
 
 class SceneManager:
@@ -92,6 +93,8 @@ class MenuScene(Scene):
     self.width = width
     self.height = height
     self.PLAY_BTN = Button(text_input="Play", font=Font, base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2))
+    # self.CMP_VS = Button(text_input="CMP Vs CMP", font=Font, base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2 + 100))
+    # self.CMP_VS_PLAYER = Button(text_input="CMP Vs Player", font=Font, base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2 + 200))
 
   def handle_events(self, events: list[pygame.Event]):
     """
@@ -109,6 +112,10 @@ class MenuScene(Scene):
       elif e.type == pygame.MOUSEBUTTONDOWN:
         if self.PLAY_BTN.checkForInput(pygame.mouse.get_pos()):
           self.manager.set_scene("game")
+        # if self.CMP_VS.checkForInput(pygame.mouse.get_pos()):
+        #   self.manager.set_scene("choose_cmps")
+        # if self.CMP_VS_PLAYER.checkForInput(pygame.mouse.get_pos()):
+        #   self.manager.set_scene("choose_cmp")
 
   def draw(self, surface, Font):
     surface.fill((0, 0, 0))
@@ -165,7 +172,7 @@ class GameScene(Scene):
     if self.status == 5:
       if self.turn == 0:
         start = time.process_time()
-        self.ai_move(1, 2)
+        self.ai_move(2, "offensive-1")
         self.total_time_1 += (time.process_time() - start)
         self.total_step_1 += 1
 
@@ -177,7 +184,7 @@ class GameScene(Scene):
 
       elif self.turn == 1:
         start = time.process_time()
-        self.ai_move(1, 2)
+        self.ai_move(2, "defensive-1")
         self.total_time_2 += (time.process_time() - start)
         self.total_step_2 += 1
 
@@ -355,18 +362,16 @@ class GameScene(Scene):
       print(self.boardmatrix)
 
   def ai_move_alphabeta(self, function_type):
-    pass
-    # board, nodes, piece = AlphaBetaAgent(self.boardmatrix, self.turn, 5, function_type).alpha_beta_decision()
-    # self.boardmatrix = board.getMatrix()
-    # if self.turn == 1:
-    #     self.total_nodes_1 += nodes
-    #     self.turn = 2
-    # elif self.turn == 2:
-    #     self.total_nodes_2 += nodes
-    #     self.turn = 1
-    # self.eat_piece = 16 - piece
-    # if self.isgoalstate():
-    #     self.status = 3
+    board, nodes, piece = AlphaBetaAgent(self.boardmatrix, self.turn, 5, function_type).alpha_beta_decision()
+    self.boardmatrix = board.get_matrix()
+    if self.turn == 0:
+        self.total_nodes_1 += nodes
+    elif self.turn == 1:
+        self.total_nodes_2 += nodes
+    self.eat_piece = 16 - piece
+    self.turn = 1 + (self.turn * -1)
+    if self.isgoalstate():
+        self.status = 3
 
   def isgoalstate(self, base=0):
     if base == 0:
