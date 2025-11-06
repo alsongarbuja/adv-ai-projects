@@ -7,6 +7,9 @@ initialBoardMatrix = [[1, 1, 1, 1, 1, 1, 1, 1],
                         [2, 2, 2, 2, 2, 2, 2, 2],
                         [2, 2, 2, 2, 2, 2, 2, 2]]
 
+MIN_VAL = -float("inf")
+MAX_VAL = float("inf")
+
 def alter_turn(turn) -> int:
     """
     Simple function to alter the players turn and return it
@@ -43,12 +46,24 @@ class Action:
     self.turn = turn
 
 class State:
-  def __init__(self, boardmatrix=None, currentTurn=0, blackPositions=None, whitePositions=None, width=8, height=8, num_black_pieces=0, num_white_pieces=0):
+  def __init__(
+      self,
+      boardmatrix=None,
+      currentTurn=0,
+      blackPositions=None,
+      whitePositions=None,
+      width=8,
+      height=8,
+      num_black_pieces=0,
+      num_white_pieces=0,
+      function_type="offensive-1"
+    ):
     self.currentTurn = currentTurn
     self.num_black_pieces = num_black_pieces
     self.num_white_pieces = num_white_pieces
     self.width = width
     self.height = height
+    self.function_type = function_type
     self.blackPositions = [] if blackPositions is None else blackPositions
     self.whitePositions = [] if whitePositions is None else whitePositions
 
@@ -143,7 +158,7 @@ class State:
         if coord[0] == 0:
           piecesInBase += 1
 
-      if piecesInBase == 3:
+      if piecesInBase >= 3:
         return True
 
       if len(self.blackPositions) <= 2 or len(self.whitePositions) <= 2:
@@ -152,22 +167,50 @@ class State:
     return False
 
   def myscore(self, turn):
-    if turn == 0:
-      return len(self.blackPositions) \
-        + sum(pos[0] for pos in self.blackPositions) + self.winningscore(turn)
-    elif turn == 1:
-      return len(self.whitePositions) \
-        + sum(7 - pos[0] for pos in self.whitePositions) + self.winningscore(turn)
+    return self.count_pieces(turn) + self.foward_pieces(turn) + self.winningscore(turn)
 
   def enemyscore(self, turn):
-    if turn == 0:
-        return len(self.whitePositions) \
-                + sum(7 - pos[0] for pos in self.whitePositions) + self.winningscore(turn)
-                #+ max(7 - pos[0] for pos in self.white_positions)\
+    alternate_turn = alter_turn(turn)
+    return self.count_pieces(alternate_turn) + self.foward_pieces(alternate_turn) + self.winningscore(turn)
 
+  def count_pieces(self, turn):
+    """
+    Simple funciton to count the remaining pieces of the player
+
+    Args:
+      turn: A integer signifying which player turn it is (0 - Black, 1 - White)
+    """
+    if turn == 0:
+      return len(self.blackPositions)
     elif turn == 1:
-        return len(self.blackPositions) \
-                + sum(pos[0] for pos in self.blackPositions) + self.winningscore(turn)
+      return len(self.whitePositions)
+    return 0
+
+  def foward_pieces(self, turn):
+    """
+    Simple function to give certian points to each player based on the number of pieces that are moving forward
+
+    Args:
+      turn: A integer signifying the current player (0 - Black, 1 - White)
+    """
+    if turn == 0:
+      return sum(pos[0] for pos in self.blackPositions)
+    elif turn == 1:
+      # Decreasing 7 since white pieces move up the board so the lesser the x coordinate the more point they score
+      return sum(7 - pos[0] for pos in self.whitePositions)
+    return 0
+
+  def is_more_stronger_in_terms_of_count(self, turn):
+    """
+    Simple function to return a value higher if current turn player pieces are more than next player
+
+    Args:
+      turn: A interger to determine the current player
+    """
+    if self.count_pieces(turn) > self.count_pieces(alter_turn(turn)):
+      return 1
+    else:
+      return 0
 
   def winningscore(self, turn):
     winningvalue = 200
@@ -187,10 +230,16 @@ class State:
         return 0
 
   def get_value(self, turn):
-    # To implement
-    return 2 * self.myscore(turn) - 1 * self.enemyscore(turn)
+    if self.function_type == "defensive-1":
+      return 1 * self.myscore(turn) - 2 * self.enemyscore(turn)
+    if self.function_type == "offensive-1":
+      return 2 * self.myscore(turn) - 1 * self.enemyscore(turn)
+    return 0
 
   def get_matrix(self):
+    """
+    Function to get the current board matrix
+    """
     matrix = [[0 for _ in range(self.width)] for _ in range(self.height)]
     for item in self.blackPositions:
       matrix[item[0]][item[1]] = 1

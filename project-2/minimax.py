@@ -3,7 +3,7 @@ import numpy as np
 from breakthrough import State
 
 class MiniMaxAgent:
-  def __init__(self, boardmatrix, playerTurn, maxDepth = 3, function_type="defensive"):
+  def __init__(self, boardmatrix, playerTurn, maxDepth = 3, function_type="offensive-1"):
     self.boardmatrix = boardmatrix
     self.playerTurn = playerTurn
     self.maxDepth = maxDepth
@@ -32,7 +32,7 @@ class MiniMaxAgent:
   def minimax_search(self):
     action_to_do = None
 
-    currentState = State(boardmatrix=self.boardmatrix, currentTurn=self.playerTurn, width=8, height=8)
+    currentState = State(boardmatrix=self.boardmatrix, currentTurn=self.playerTurn, width=8, height=8, function_type=self.function_type)
 
     value = -np.inf
     for action in currentState.get_actions():
@@ -45,8 +45,6 @@ class MiniMaxAgent:
       if min_result > value:
         action_to_do = action
         value = min_result
-
-    print("Action done: ", action.coord, action.direction, action.turn)
     next_state = currentState.move_piece(action_to_do)
 
     if self.playerTurn == 0:
