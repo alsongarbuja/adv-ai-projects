@@ -1,3 +1,5 @@
+import random
+
 initialBoardMatrix = [[1, 1, 1, 1, 1, 1, 1, 1],
                         [1, 1, 1, 1, 1, 1, 1, 1],
                         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -111,7 +113,7 @@ class State:
       else:
         print("Action is not valid")
 
-    new_state = State(blackPositions=black_positions, whitePositions=white_positions, currentTurn=alter_turn(action.turn), num_black_pieces=self.num_black_pieces, num_white_pieces=self.num_white_pieces, height=self.height, width=self.width)
+    new_state = State(function_type=self.function_type, blackPositions=black_positions, whitePositions=white_positions, currentTurn=alter_turn(action.turn), num_black_pieces=self.num_black_pieces, num_white_pieces=self.num_white_pieces, height=self.height, width=self.width)
     return new_state
 
   def get_actions(self, pos=None):
@@ -230,10 +232,15 @@ class State:
         return 0
 
   def get_value(self, turn):
+    # print(turn, " function type: ", self.function_type)
     if self.function_type == "defensive-1":
-      return 1 * self.myscore(turn) - 2 * self.enemyscore(turn)
+      return 2 * self.myscore(turn) + random.random()
     if self.function_type == "offensive-1":
-      return 2 * self.myscore(turn) - 1 * self.enemyscore(turn)
+      return 2 *(30 - self.enemyscore(turn)) + random.random()
+    if self.function_type == "defensive-2":
+      return 0
+    if self.function_type == "offensive-2":
+      return 0
     return 0
 
   def get_matrix(self):

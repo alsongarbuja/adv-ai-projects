@@ -9,6 +9,11 @@ from breakthrough import initialBoardMatrix
 from minimax import MiniMaxAgent
 from alphabeta import AlphaBetaAgent
 from button import Button
+from dropdown import Dropdown
+
+AI_FUNCTION_OPTIONS = ["offensive-1", "defensive-1"]
+ai_function_one_index = AI_FUNCTION_OPTIONS.index("offensive-1")
+ai_function_two_index = AI_FUNCTION_OPTIONS.index("defensive-1")
 
 class SceneManager:
   """
@@ -56,7 +61,7 @@ class SceneManager:
     if self.current_scene:
       self.current_scene.update()
 
-  def draw(self, surface: pygame.Surface, font: pygame.font.Font):
+  def draw(self, surface: pygame.Surface):
     """
     Function to handle drawing elements in scene in current scene
 
@@ -65,7 +70,7 @@ class SceneManager:
       font: A pygame Font
     """
     if self.current_scene:
-      self.current_scene.draw(surface, font)
+      self.current_scene.draw(surface)
 
 class Scene:
   """
@@ -80,21 +85,81 @@ class Scene:
   def update(self):
     pass
 
-  def draw(self, surface: pygame.Surface, font: pygame.font.Font):
+  def draw(self, surface: pygame.Surface):
     pass
 
 class MenuScene(Scene):
   """
   Class for Menu Scene
   """
-  def __init__(self, manager: SceneManager, width, height, Font: pygame.font.Font):
+  def __init__(self, manager: SceneManager, width, height):
     super().__init__(manager)
-    self.title = Font.render("Breakthrough", True, (255, 255, 255))
+    self.title = pygame.font.Font(None, 50).render("Breakthrough", False, (255, 255, 255))
     self.width = width
     self.height = height
-    self.PLAY_BTN = Button(text_input="Play", font=Font, base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2))
-    # self.CMP_VS = Button(text_input="CMP Vs CMP", font=Font, base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2 + 100))
-    # self.CMP_VS_PLAYER = Button(text_input="CMP Vs Player", font=Font, base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2 + 200))
+    self.PLAY_BTN = Button(text_input="Play", font=pygame.font.Font(None, 18), base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2))
+    self.CMP_VS = Button(text_input="CMP Vs CMP", font=pygame.font.Font(None, 18), base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2 + 100))
+
+  def handle_events(self, events: list[pygame.Event]):
+    """
+    Function to handle events in the game
+
+    Args:
+      events: list of pygame events
+    """
+    for e in events:
+      # If close button is pressed close the pygame window
+      if e.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+      elif e.type == pygame.MOUSEBUTTONDOWN:
+        # If the play button is pressed change the scene to game scene
+        if self.PLAY_BTN.checkForInput(pygame.mouse.get_pos()):
+          self.manager.set_scene("game")
+        # If the cmp vs cmp button is pressed change the scene to choice scene
+        if self.CMP_VS.checkForInput(pygame.mouse.get_pos()):
+          self.manager.set_scene("choice")
+
+  def draw(self, surface):
+    surface.fill((0, 0, 0))
+
+    surface.blit(self.title, (self.width // 2 - self.title.get_width() // 2, 80))
+
+    for button in [self.PLAY_BTN, self.CMP_VS]:
+      button.changeColor(pygame.mouse.get_pos())
+      button.update(surface)
+
+class ChoiceScene(Scene):
+  """
+  Class for Choice scene
+  """
+  def __init__(self, manager: SceneManager, width, height):
+    super().__init__(manager)
+    self.title = pygame.font.Font(None, 50).render("Breakthrough - Choose Options", True, (255, 255, 255))
+    self.width = width
+    self.height = height
+    self.DROP = Dropdown(
+      x=150, y=200, w=100, h=24,
+      main_color=(50, 50, 50),
+      hover_color=(80, 80, 80),
+      font_color=(255, 255, 255),
+      options=AI_FUNCTION_OPTIONS,
+      font=pygame.font.Font(None, 18),
+      label_text="Function type for black",
+      selected_index=ai_function_one_index
+    )
+    self.DROP_2 = Dropdown(
+      x=350, y=200, w=100, h=24,
+      main_color=(50, 50, 50),
+      hover_color=(80, 80, 80),
+      font_color=(255, 255, 255),
+      options=AI_FUNCTION_OPTIONS,
+      font=pygame.font.Font(None, 18),
+      label_text="Function type for white",
+      selected_index=ai_function_two_index
+    )
+    self.PLAY_BTN = Button(text_input="Play", font=pygame.font.Font(None, 18), base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2 + 120))
+    self.BACK_BTN = Button(text_input="Back To Menu", font=pygame.font.Font(None, 18), base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2 + 200))
 
   def handle_events(self, events: list[pygame.Event]):
     """
@@ -112,19 +177,22 @@ class MenuScene(Scene):
       elif e.type == pygame.MOUSEBUTTONDOWN:
         if self.PLAY_BTN.checkForInput(pygame.mouse.get_pos()):
           self.manager.set_scene("game")
-        # if self.CMP_VS.checkForInput(pygame.mouse.get_pos()):
-        #   self.manager.set_scene("choose_cmps")
-        # if self.CMP_VS_PLAYER.checkForInput(pygame.mouse.get_pos()):
-        #   self.manager.set_scene("choose_cmp")
+        if self.BACK_BTN.checkForInput(pygame.mouse.get_pos()):
+          self.manager.set_scene("menu")
+      ai_function_one_index = self.DROP.handle_event(event=e)
+      ai_function_two_index = self.DROP_2.handle_event(event=e)
 
-  def draw(self, surface, Font):
+  def draw(self, surface):
     surface.fill((0, 0, 0))
 
     surface.blit(self.title, (self.width // 2 - self.title.get_width() // 2, 80))
 
-    for button in [self.PLAY_BTN]:
+    for button in [self.PLAY_BTN, self.BACK_BTN]:
       button.changeColor(pygame.mouse.get_pos())
       button.update(surface)
+
+    self.DROP.draw(surface)
+    self.DROP_2.draw(surface)
 
 class GameScene(Scene):
   def __init__(self, manager, scene: pygame.Surface, width: int, height: int):
@@ -172,7 +240,7 @@ class GameScene(Scene):
     if self.status == 5:
       if self.turn == 0:
         start = time.process_time()
-        self.ai_move(2, "offensive-1")
+        self.ai_move(1, AI_FUNCTION_OPTIONS[ai_function_one_index])
         self.total_time_1 += (time.process_time() - start)
         self.total_step_1 += 1
 
@@ -184,7 +252,7 @@ class GameScene(Scene):
 
       elif self.turn == 1:
         start = time.process_time()
-        self.ai_move(2, "defensive-1")
+        self.ai_move(2, AI_FUNCTION_OPTIONS[ai_function_two_index])
         self.total_time_2 += (time.process_time() - start)
         self.total_step_2 += 1
 
@@ -203,7 +271,7 @@ class GameScene(Scene):
         self.status = 0
         self.turn = 0
       elif event.type == pygame.MOUSEBUTTONDOWN and self.iscomputer(event.pos):
-        self.ai_move_minimax(1)
+        self.ai_move_minimax("defensive-1")
       elif event.type == pygame.MOUSEBUTTONDOWN and self.isauto(event.pos):
         self.status = 5
       elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 0:
@@ -249,7 +317,7 @@ class GameScene(Scene):
     self.auto = pygame.image.load_extended(os.path.join('assets', 'auto.png'))
     self.auto = pygame.transform.scale(self.auto, (80, 80))
 
-  def draw(self, scene, font):
+  def draw(self, scene):
     self.scene.blit(self.board, (0, 0))
     self.scene.blit(self.reset, (590, 50))
     self.scene.blit(self.computer, (590, 200))
@@ -343,13 +411,14 @@ class GameScene(Scene):
     return 0
 
   def ai_move(self, searchtype, evaluation):
+    print(" index: ", self.turn, " function: ", evaluation)
     if searchtype == 1:
         return self.ai_move_minimax(evaluation)
     elif searchtype == 2:
         return self.ai_move_alphabeta(evaluation)
 
   def ai_move_minimax(self, function_type):
-    board, nodes, piece = MiniMaxAgent(self.boardmatrix, self.turn, 3, function_type).minimax_search()
+    board, nodes, piece = MiniMaxAgent(boardmatrix=self.boardmatrix, playerTurn=self.turn, function_type=function_type).minimax_search()
     self.boardmatrix = board.get_matrix()
     if self.turn == 0:
         self.total_nodes_1 += nodes
@@ -362,7 +431,7 @@ class GameScene(Scene):
       print(self.boardmatrix)
 
   def ai_move_alphabeta(self, function_type):
-    board, nodes, piece = AlphaBetaAgent(self.boardmatrix, self.turn, 5, function_type).alpha_beta_decision()
+    board, nodes, piece = AlphaBetaAgent(self.boardmatrix, self.turn, 4, function_type).alpha_beta_decision()
     self.boardmatrix = board.get_matrix()
     if self.turn == 0:
         self.total_nodes_1 += nodes

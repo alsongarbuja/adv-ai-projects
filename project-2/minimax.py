@@ -32,7 +32,7 @@ class MiniMaxAgent:
   def minimax_search(self):
     action_to_do = None
 
-    currentState = State(boardmatrix=self.boardmatrix, currentTurn=self.playerTurn, width=8, height=8, function_type=self.function_type)
+    currentState = State(boardmatrix=self.boardmatrix, currentTurn=self.playerTurn, function_type=self.function_type)
 
     value = -np.inf
     for action in currentState.get_actions():
