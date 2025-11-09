@@ -8,10 +8,11 @@ from breakthrough import initialBoardMatrix
 from minimax import MiniMaxAgent
 from alphabeta import AlphaBetaAgent
 from scene.scene import Scene
-from scene.global_vars import ai_function_one_index, AI_FUNCTION_OPTIONS, ai_function_one_type_index, ai_function_two_index, ai_function_two_type_index
+import scene.global_vars as gv
 
 class GameScene(Scene):
   def __init__(self, manager, scene: pygame.Surface, width: int, height: int):
+    self.manager = manager
     self.width, self.height = width, height
     self.sizeofcell = int(560/8)
     self.scene = scene
@@ -45,18 +46,15 @@ class GameScene(Scene):
 
     pygame.display.set_caption("Breakthrough Game")
 
-    # self.clock = pygame.time.Clock()
     self.initgraphics()
 
   def update(self):
-    # self.clock.tick(60)
-
     self.scene.fill([255, 255, 255])
 
-    if self.status == 5:
+    if self.status == 5 or gv.gameplay_option == 1 and self.turn == 0:
       if self.turn == 0:
         start = time.process_time()
-        self.ai_move(ai_function_one_type_index, AI_FUNCTION_OPTIONS[ai_function_one_index])
+        self.ai_move(gv.ai_function_one_type_index, gv.AI_FUNCTION_OPTIONS[gv.ai_function_one_index])
         self.total_time_1 += (time.process_time() - start)
         self.total_step_1 += 1
 
@@ -68,7 +66,7 @@ class GameScene(Scene):
 
       elif self.turn == 1:
         start = time.process_time()
-        self.ai_move(ai_function_two_type_index, AI_FUNCTION_OPTIONS[ai_function_two_index])
+        self.ai_move(gv.ai_function_two_type_index, gv.AI_FUNCTION_OPTIONS[gv.ai_function_two_index])
         self.total_time_2 += (time.process_time() - start)
         self.total_step_2 += 1
 
@@ -86,15 +84,16 @@ class GameScene(Scene):
         self.boardmatrix = copy.deepcopy(initialBoardMatrix)
         self.status = 0
         self.turn = 0
-      elif event.type == pygame.MOUSEBUTTONDOWN and self.iscomputer(event.pos):
-        self.ai_move_minimax("defensive-1")
-      elif event.type == pygame.MOUSEBUTTONDOWN and self.isauto(event.pos):
-        self.status = 5
+      # elif event.type == pygame.MOUSEBUTTONDOWN and self.iscomputer(event.pos):
+      #   self.ai_move_minimax("defensive-1")
+      # elif event.type == pygame.MOUSEBUTTONDOWN and self.isauto(event.pos):
+      #   self.status = 5
       elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 0:
         x, y = event.pos
         coor_y = math.floor(x / self.sizeofcell)
         coor_x = math.floor(y / self.sizeofcell)
-        if self.boardmatrix[coor_x][coor_y] == self.turn+1:
+        if 0 <= coor_x < len(self.boardmatrix) and 0 <= coor_y < len(self.boardmatrix[0]):
+          if self.boardmatrix[coor_x][coor_y] == self.turn+1:
             self.status = 1
             self.ori_y = math.floor(x / self.sizeofcell)
             self.ori_x = math.floor(y / self.sizeofcell)
@@ -107,13 +106,10 @@ class GameScene(Scene):
           if (self.new_x == 7 and self.boardmatrix[self.new_x][self.new_y] == 1) \
             or (self.new_x == 0 and self.boardmatrix[self.new_x][self.new_y] == 2):
             self.status = 3
-        elif self.boardmatrix[self.new_x][self.new_y] == self.boardmatrix[self.ori_x][self.ori_y]:
-          self.ori_x = self.new_x
-          self.ori_y = self.new_y
-
-    # self.display()
-
-    # pygame.display.flip()
+        elif 0 <= self.new_x < len(self.boardmatrix) and 0 <= self.new_y < len(self.boardmatrix[0]):
+          if self.boardmatrix[self.new_x][self.new_y] == self.boardmatrix[self.ori_x][self.ori_y]:
+            self.ori_x = self.new_x
+            self.ori_y = self.new_y
 
   def initgraphics(self):
     self.board = pygame.image.load_extended(os.path.join('assets', 'board.png'))
@@ -128,16 +124,18 @@ class GameScene(Scene):
     self.reset = pygame.transform.scale(self.reset, (80, 80))
     self.winner = pygame.image.load_extended(os.path.join('assets', 'winner.png'))
     self.winner = pygame.transform.scale(self.winner, (250, 250))
-    self.computer = pygame.image.load_extended(os.path.join('assets', 'computer.png'))
-    self.computer = pygame.transform.scale(self.computer, (80, 80))
-    self.auto = pygame.image.load_extended(os.path.join('assets', 'auto.png'))
-    self.auto = pygame.transform.scale(self.auto, (80, 80))
+    # self.computer = pygame.image.load_extended(os.path.join('assets', 'computer.png'))
+    # self.computer = pygame.transform.scale(self.computer, (80, 80))
+    # self.auto = pygame.image.load_extended(os.path.join('assets', 'auto.png'))
+    # self.auto = pygame.transform.scale(self.auto, (80, 80))
 
   def draw(self, scene):
+    if gv.gameplay_option == 2:
+      self.status = 5
     self.scene.blit(self.board, (0, 0))
     self.scene.blit(self.reset, (590, 50))
-    self.scene.blit(self.computer, (590, 200))
-    self.scene.blit(self.auto, (590, 340))
+    # self.scene.blit(self.computer, (590, 200))
+    # self.scene.blit(self.auto, (590, 340))
     for i in range(8):
       for j in range(8):
         if self.boardmatrix[i][j] == 1:

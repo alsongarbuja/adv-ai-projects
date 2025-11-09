@@ -4,7 +4,7 @@ import pygame
 from scene.scene import Scene, SceneManager
 from utility.button import Button
 from utility.dropdown import Dropdown
-from scene.global_vars import AI_FUNCTION_TYPES_OPTIONS, AI_FUNCTION_OPTIONS, ai_function_one_index, ai_function_one_type_index, handle_ai_one_function_index_change, handle_ai_one_function_type_index_change
+import scene.global_vars as gv
 
 class PlayerVsCMPChoiceScene(Scene):
   """
@@ -20,22 +20,22 @@ class PlayerVsCMPChoiceScene(Scene):
       main_color=(50, 50, 50),
       hover_color=(80, 80, 80),
       font_color=(255, 255, 255),
-      options=AI_FUNCTION_TYPES_OPTIONS,
+      options=gv.AI_FUNCTION_TYPES_OPTIONS,
       font=pygame.font.Font(None, 18),
       label_text="Algorithm for black",
-      selected_index=ai_function_one_type_index,
-      on_change=handle_ai_one_function_type_index_change,
+      selected_index=gv.ai_function_one_type_index,
+      on_change=gv.handle_ai_one_function_type_index_change,
     )
     self.DROP = Dropdown(
       x=150, y=250, w=100, h=24,
       main_color=(50, 50, 50),
       hover_color=(80, 80, 80),
       font_color=(255, 255, 255),
-      options=AI_FUNCTION_OPTIONS,
+      options=gv.AI_FUNCTION_OPTIONS,
       font=pygame.font.Font(None, 18),
       label_text="Function type for black",
-      selected_index=ai_function_one_index,
-      on_change=handle_ai_one_function_index_change,
+      selected_index=gv.ai_function_one_index,
+      on_change=gv.handle_ai_one_function_index_change,
     )
     self.PLAY_BTN = Button(text_input="Play", font=pygame.font.Font(None, 18), base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2 + 120))
     self.BACK_BTN = Button(text_input="Back To Menu", font=pygame.font.Font(None, 18), base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2 + 200))

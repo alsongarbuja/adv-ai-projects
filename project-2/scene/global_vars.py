@@ -6,6 +6,12 @@ AI_FUNCTION_TYPES_OPTIONS = ["minimax", "alpha-beta"]
 ai_function_one_type_index = AI_FUNCTION_TYPES_OPTIONS.index("minimax")
 ai_function_two_type_index = AI_FUNCTION_TYPES_OPTIONS.index("alpha-beta")
 
+# Determines which mode of gameplay is being played
+# 0 - Normal Player vs Player
+# 1 - Player Vs Computer
+# 2 - Computer Vs Computer / Auto
+gameplay_option = 0
+
 def handle_ai_one_function_index_change(index: int):
   global ai_function_one_index
   ai_function_one_index = index
