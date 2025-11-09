@@ -12,7 +12,7 @@ def main():
   manager.add_scene("menu", MenuScene(manager=manager, width=WIDTH, height=HEIGHT))
   manager.add_scene("game", GameScene(manager=manager, scene=SCREEN, width=WIDTH, height=HEIGHT))
   manager.add_scene("choice", ChoiceScene(manager=manager, width=WIDTH, height=HEIGHT))
-  manager.set_scene("game")
+  manager.set_scene("choice")
 
   while 1:
     events = pygame.event.get()

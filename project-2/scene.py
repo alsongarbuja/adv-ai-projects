@@ -11,9 +11,29 @@ from alphabeta import AlphaBetaAgent
 from button import Button
 from dropdown import Dropdown
 
-AI_FUNCTION_OPTIONS = ["offensive-1", "defensive-1"]
+AI_FUNCTION_OPTIONS = ["offensive-1", "defensive-1", "offensive-2", "defensive-2"]
 ai_function_one_index = AI_FUNCTION_OPTIONS.index("offensive-1")
 ai_function_two_index = AI_FUNCTION_OPTIONS.index("defensive-1")
+
+AI_FUNCTION_TYPES_OPTIONS = ["minimax", "alpha-beta"]
+ai_function_one_type_index = AI_FUNCTION_TYPES_OPTIONS.index("minimax")
+ai_function_two_type_index = AI_FUNCTION_TYPES_OPTIONS.index("alpha-beta")
+
+def handle_ai_one_function_index_change(index: int):
+  global ai_function_one_index
+  ai_function_one_index = index
+
+def handle_ai_two_function_index_change(index: int):
+  global ai_function_two_index
+  ai_function_two_index = index
+
+def handle_ai_one_function_type_index_change(index: int):
+  global ai_function_one_type_index
+  ai_function_one_type_index = index
+
+def handle_ai_two_function_type_index_change(index: int):
+  global ai_function_two_type_index
+  ai_function_two_type_index = index
 
 class SceneManager:
   """
@@ -138,25 +158,49 @@ class ChoiceScene(Scene):
     self.title = pygame.font.Font(None, 50).render("Breakthrough - Choose Options", True, (255, 255, 255))
     self.width = width
     self.height = height
+    self.DROP_TYPE_1 = Dropdown(
+      x=150, y=150, w=100, h=24,
+      main_color=(50, 50, 50),
+      hover_color=(80, 80, 80),
+      font_color=(255, 255, 255),
+      options=AI_FUNCTION_TYPES_OPTIONS,
+      font=pygame.font.Font(None, 18),
+      label_text="Algorithm for black",
+      selected_index=ai_function_one_type_index,
+      on_change=handle_ai_one_function_type_index_change,
+    )
+    self.DROP_TYPE_2 = Dropdown(
+      x=350, y=150, w=100, h=24,
+      main_color=(50, 50, 50),
+      hover_color=(80, 80, 80),
+      font_color=(255, 255, 255),
+      options=AI_FUNCTION_TYPES_OPTIONS,
+      font=pygame.font.Font(None, 18),
+      label_text="Algorithm for white",
+      selected_index=ai_function_two_type_index,
+      on_change=handle_ai_two_function_type_index_change,
+    )
     self.DROP = Dropdown(
-      x=150, y=200, w=100, h=24,
+      x=150, y=250, w=100, h=24,
       main_color=(50, 50, 50),
       hover_color=(80, 80, 80),
       font_color=(255, 255, 255),
       options=AI_FUNCTION_OPTIONS,
       font=pygame.font.Font(None, 18),
       label_text="Function type for black",
-      selected_index=ai_function_one_index
+      selected_index=ai_function_one_index,
+      on_change=handle_ai_one_function_index_change,
     )
     self.DROP_2 = Dropdown(
-      x=350, y=200, w=100, h=24,
+      x=350, y=250, w=100, h=24,
       main_color=(50, 50, 50),
       hover_color=(80, 80, 80),
       font_color=(255, 255, 255),
       options=AI_FUNCTION_OPTIONS,
       font=pygame.font.Font(None, 18),
       label_text="Function type for white",
-      selected_index=ai_function_two_index
+      selected_index=ai_function_two_index,
+      on_change=handle_ai_two_function_index_change,
     )
     self.PLAY_BTN = Button(text_input="Play", font=pygame.font.Font(None, 18), base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2 + 120))
     self.BACK_BTN = Button(text_input="Back To Menu", font=pygame.font.Font(None, 18), base_color="#d7fcd4", hovering_color="white", pos=(width / 2, height / 2 + 200))
@@ -179,8 +223,10 @@ class ChoiceScene(Scene):
           self.manager.set_scene("game")
         if self.BACK_BTN.checkForInput(pygame.mouse.get_pos()):
           self.manager.set_scene("menu")
-      ai_function_one_index = self.DROP.handle_event(event=e)
-      ai_function_two_index = self.DROP_2.handle_event(event=e)
+      self.DROP.handle_event(event=e)
+      self.DROP_2.handle_event(event=e)
+      self.DROP_TYPE_2.handle_event(event=e)
+      self.DROP_TYPE_1.handle_event(event=e)
 
   def draw(self, surface):
     surface.fill((0, 0, 0))
@@ -193,6 +239,8 @@ class ChoiceScene(Scene):
 
     self.DROP.draw(surface)
     self.DROP_2.draw(surface)
+    self.DROP_TYPE_1.draw(surface)
+    self.DROP_TYPE_2.draw(surface)
 
 class GameScene(Scene):
   def __init__(self, manager, scene: pygame.Surface, width: int, height: int):
@@ -240,7 +288,7 @@ class GameScene(Scene):
     if self.status == 5:
       if self.turn == 0:
         start = time.process_time()
-        self.ai_move(1, AI_FUNCTION_OPTIONS[ai_function_one_index])
+        self.ai_move(ai_function_one_type_index, AI_FUNCTION_OPTIONS[ai_function_one_index])
         self.total_time_1 += (time.process_time() - start)
         self.total_step_1 += 1
 
@@ -252,7 +300,7 @@ class GameScene(Scene):
 
       elif self.turn == 1:
         start = time.process_time()
-        self.ai_move(2, AI_FUNCTION_OPTIONS[ai_function_two_index])
+        self.ai_move(ai_function_two_type_index, AI_FUNCTION_OPTIONS[ai_function_two_index])
         self.total_time_2 += (time.process_time() - start)
         self.total_step_2 += 1
 
@@ -291,9 +339,9 @@ class GameScene(Scene):
           if (self.new_x == 7 and self.boardmatrix[self.new_x][self.new_y] == 1) \
             or (self.new_x == 0 and self.boardmatrix[self.new_x][self.new_y] == 2):
             self.status = 3
-        elif self.boardmatrix[self.new_x][self.new_y] == self.boardmatrix[self.ori_x][self.ori_y]:
-          self.ori_x = self.new_x
-          self.ori_y = self.new_y
+        # elif self.boardmatrix[self.new_x][self.new_y] == self.boardmatrix[self.ori_x][self.ori_y]:
+        #   self.ori_x = self.new_x
+        #   self.ori_y = self.new_y
 
     # self.display()
 
@@ -397,6 +445,8 @@ class GameScene(Scene):
     return False
 
   def isabletomove(self):
+    if self.new_y >= len(self.boardmatrix[0])-1 or self.new_x >= len(self.boardmatrix)-1:
+      return 0
     if (self.boardmatrix[self.ori_x][self.ori_y] == 1
         and self.boardmatrix[self.new_x][self.new_y] != 1
         and self.new_x - self.ori_x == 1
@@ -411,11 +461,10 @@ class GameScene(Scene):
     return 0
 
   def ai_move(self, searchtype, evaluation):
-    print(" index: ", self.turn, " function: ", evaluation)
-    if searchtype == 1:
-        return self.ai_move_minimax(evaluation)
-    elif searchtype == 2:
-        return self.ai_move_alphabeta(evaluation)
+    if searchtype == 0:
+      return self.ai_move_minimax(evaluation)
+    elif searchtype == 1:
+      return self.ai_move_alphabeta(evaluation)
 
   def ai_move_minimax(self, function_type):
     board, nodes, piece = MiniMaxAgent(boardmatrix=self.boardmatrix, playerTurn=self.turn, function_type=function_type).minimax_search()

@@ -232,16 +232,68 @@ class State:
         return 0
 
   def get_value(self, turn):
-    # print(turn, " function type: ", self.function_type)
     if self.function_type == "defensive-1":
       return 2 * self.myscore(turn) + random.random()
     if self.function_type == "offensive-1":
       return 2 *(30 - self.enemyscore(turn)) + random.random()
     if self.function_type == "defensive-2":
-      return 0
+      return 2 * self.myscore(turn) + 2 * self.space_control(turn) - 2 * self.attack_threats(alter_turn(turn)) + 3 * self.my_safety(turn) + random.random()
     if self.function_type == "offensive-2":
-      return 0
+      return 3 * self.myscore(turn) - self.enemyscore(turn) + 1.5 * self.attack_threats(turn) + random.random()
     return 0
+
+  def attack_threats(self, turn):
+    """
+    Function to return number of enemy pieces that can be captured by current player in next move:
+
+    Args:
+      turn: Current player turn integer
+    """
+    threats = 0
+
+    pieces_to_use = self.blackPositions if turn == 0 else self.whitePositions
+    opponents_to_use = self.whitePositions if turn == 0 else self.blackPositions
+    direction = 1 if turn == 0 else -1
+
+    for (r, c) in pieces_to_use:
+      for dc in (-1, 1):
+        new_r, new_c = r + direction, c + dc
+        if 0 <= new_r < self.height and 0 <= new_c < self.width:
+          if (new_r, new_c) in opponents_to_use:
+            threats += 1
+
+    return threats
+
+  def my_safety(self, turn):
+    """
+    Function to evaluate if current player pieces are protected or not
+
+    Args:
+      turn: A integer representing current player
+    """
+    safe = 0
+    direc = 1 if turn == 0 else -1
+    pieces_to_use = self.blackPositions if turn == 0 else self.whitePositions
+    pieces_set = set(pieces_to_use)
+    for (r, c) in pieces_to_use:
+      for dc in (-1, 1):
+        if (r - direc, c + dc) in pieces_set:
+          safe +=1
+          break
+    return safe
+
+  def space_control(self, turn):
+    """
+    Function to give more value to player with more pieces in center rows
+
+    Args:
+      turn: A integer denoting the current player
+    """
+    center_cols = {(self.height-1) // 2}
+    if self.height % 2 != 0:
+      center_cols.add((self.height-1) //  2 + 1)
+    pieces_to_use = self.blackPositions if turn == 0 else self.whitePositions
+    return sum(1 for _, c in pieces_to_use if c in center_cols)
 
   def get_matrix(self):
     """

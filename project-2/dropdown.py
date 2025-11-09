@@ -1,7 +1,7 @@
 import pygame
 
 class Dropdown:
-  def __init__(self, x, y, w, h, main_color, hover_color, font, font_color, options, label_text, selected_index=0):
+  def __init__(self, x, y, w, h, main_color, hover_color, font, font_color, options, on_change, label_text, selected_index=0):
     self.rect = pygame.Rect(x, y, w, h)
     self.main_color = main_color
     self.hover_color = hover_color
@@ -11,6 +11,7 @@ class Dropdown:
     self.selected_index = selected_index
     self.expanded = False
     self.label_text = label_text
+    self.on_change = on_change
     self.label_surface = self.font.render(label_text, True, font_color) if label_text else None
 
   def draw(self, surface):
@@ -50,7 +51,8 @@ class Dropdown:
           if opt_rect.collidepoint(mouse_pos):
             self.selected_index = i
             self.expanded = False
-            return i
+            self.on_change(i)
+            break
           else:
             # Clicked outside
             self.expanded = False
