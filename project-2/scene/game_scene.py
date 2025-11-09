@@ -44,6 +44,9 @@ class GameScene(Scene):
     self.total_step_2 = 0
     self.eat_piece = 0
 
+    self.ai_delay_start = None
+    self.ai_delay_duration = 200
+
     pygame.display.set_caption("Breakthrough Game")
 
     self.initgraphics()
@@ -51,7 +54,14 @@ class GameScene(Scene):
   def update(self):
     self.scene.fill([255, 255, 255])
 
-    if self.status == 5 or gv.gameplay_option == 1 and self.turn == 0:
+    if gv.gameplay_option == 1 and self.turn == 0:
+      if self.ai_delay_start:
+        if pygame.time.get_ticks() - self.ai_delay_start < self.ai_delay_duration:
+          return
+        else:
+          self.ai_delay_start = None
+
+    if self.status == 5 or (gv.gameplay_option == 1 and self.turn == 0):
       if self.turn == 0:
         start = time.process_time()
         self.ai_move(gv.ai_function_one_type_index, gv.AI_FUNCTION_OPTIONS[gv.ai_function_one_index])
@@ -130,7 +140,7 @@ class GameScene(Scene):
     # self.auto = pygame.transform.scale(self.auto, (80, 80))
 
   def draw(self, scene):
-    if gv.gameplay_option == 2:
+    if gv.gameplay_option == 2 and not self.isgoalstate():
       self.status = 5
     self.scene.blit(self.board, (0, 0))
     self.scene.blit(self.reset, (590, 50))
@@ -191,6 +201,9 @@ class GameScene(Scene):
     self.boardmatrix[self.ori_x][self.ori_y] = 0
     self.turn = 1 + (self.turn * -1)
     self.status = 0
+
+    if gv.gameplay_option == 1 and self.turn == 0:
+      self.ai_delay_start = pygame.time.get_ticks()
 
   def isreset(self, pos):
     x, y = pos
