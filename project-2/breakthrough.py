@@ -239,7 +239,7 @@ class State:
     if self.function_type == "defensive-2":
       return 2 * self.myscore(turn) + 2 * self.space_control(turn) - 2 * self.attack_threats(alter_turn(turn)) + 3 * self.my_safety(turn) + random.random()
     if self.function_type == "offensive-2":
-      return 3 * self.myscore(turn) - self.enemyscore(turn) + 1.5 * self.attack_threats(turn) + random.random()
+      return 3 * self.myscore(turn) - 2 * self.enemyscore(turn) + 1.5 * self.attack_threats(turn) + random.random()
     return 0
 
   def attack_threats(self, turn):

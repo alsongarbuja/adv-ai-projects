@@ -1,6 +1,6 @@
 import pygame
 
-from scene import SceneManager, MenuScene, GameScene, ChoiceScene
+from scene import SceneManager, MenuScene, GameScene, ChoiceScene, VsCMPChoiceScene
 
 pygame.init()
 WIDTH, HEIGHT = 700, 560
@@ -11,7 +11,8 @@ def main():
   manager = SceneManager()
   manager.add_scene("menu", MenuScene(manager=manager, width=WIDTH, height=HEIGHT))
   manager.add_scene("game", GameScene(manager=manager, scene=SCREEN, width=WIDTH, height=HEIGHT))
-  manager.add_scene("choice", ChoiceScene(manager=manager, width=WIDTH, height=HEIGHT))
+  manager.add_scene("choice-auto", ChoiceScene(manager=manager, width=WIDTH, height=HEIGHT))
+  manager.add_scene("choice-vs-cmp", VsCMPChoiceScene(manager=manager, width=WIDTH, height=HEIGHT))
   manager.set_scene("menu")
 
   while 1:
