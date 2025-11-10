@@ -25,6 +25,8 @@ class GameScene(Scene):
     self.reset = 0
     self.winner = 0
     self.computer = None
+    self.minimax_profile = None
+    self.alphabeta_profile = None
 
     self.status = 0
     self.turn = 0
@@ -94,10 +96,6 @@ class GameScene(Scene):
         self.boardmatrix = copy.deepcopy(initialBoardMatrix)
         self.status = 0
         self.turn = 0
-      # elif event.type == pygame.MOUSEBUTTONDOWN and self.iscomputer(event.pos):
-      #   self.ai_move_minimax("defensive-1")
-      # elif event.type == pygame.MOUSEBUTTONDOWN and self.isauto(event.pos):
-      #   self.status = 5
       elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 0:
         x, y = event.pos
         coor_y = math.floor(x / self.sizeofcell)
@@ -134,18 +132,29 @@ class GameScene(Scene):
     self.reset = pygame.transform.scale(self.reset, (80, 80))
     self.winner = pygame.image.load_extended(os.path.join('assets', 'winner.png'))
     self.winner = pygame.transform.scale(self.winner, (250, 250))
-    # self.computer = pygame.image.load_extended(os.path.join('assets', 'computer.png'))
-    # self.computer = pygame.transform.scale(self.computer, (80, 80))
-    # self.auto = pygame.image.load_extended(os.path.join('assets', 'auto.png'))
-    # self.auto = pygame.transform.scale(self.auto, (80, 80))
+    self.minimax_profile = pygame.image.load_extended(os.path.join('assets', 'min-max-profile.png'))
+    self.minimax_profile = pygame.transform.scale(self.minimax_profile, (80, 80))
+    self.alphabeta_profile = pygame.image.load_extended(os.path.join('assets', 'alpha-beta-profile.png'))
+    self.alphabeta_profile = pygame.transform.scale(self.alphabeta_profile, (80, 80))
 
   def draw(self, scene):
     if gv.gameplay_option == 2 and not self.isgoalstate():
       self.status = 5
     self.scene.blit(self.board, (0, 0))
-    self.scene.blit(self.reset, (590, 50))
-    # self.scene.blit(self.computer, (590, 200))
-    # self.scene.blit(self.auto, (590, 340))
+    self.scene.blit(self.reset, (590, 150))
+
+    self.draw_metrics()
+
+    players_pos = [(590, 10), (590, 420)]
+    if gv.ai_function_one_type_index == 0 and gv.gameplay_option != 0:
+      self.scene.blit(self.minimax_profile, players_pos[0])
+    if gv.ai_function_one_type_index == 1 and gv.gameplay_option != 0:
+      self.scene.blit(self.alphabeta_profile, players_pos[0])
+    if gv.ai_function_two_type_index == 0 and gv.gameplay_option == 2:
+      self.scene.blit(self.minimax_profile, players_pos[1])
+    if gv.ai_function_two_type_index == 1 and gv.gameplay_option == 2:
+      self.scene.blit(self.alphabeta_profile, players_pos[1])
+
     for i in range(8):
       for j in range(8):
         if self.boardmatrix[i][j] == 1:
@@ -196,6 +205,36 @@ class GameScene(Scene):
     if self.status == 3:
         self.scene.blit(self.winner, (100, 100))
 
+  def draw_metrics(self):
+    turn_text = pygame.font.Font(None, 24).render(f"Current player: {'Black' if self.turn==0 else 'White'}", True, (0,0,0))
+    turn_text_rect = turn_text.get_rect()
+    turn_text_rect.midright = (self.width - 20, 100)
+
+    self.scene.blit(turn_text, turn_text_rect)
+
+    if self.status == 5 or (gv.gameplay_option == 1 and self.turn == 0):
+      steps_render_text = f"Steps till now: {self.total_step_1 if self.turn==0 else self.total_step_2}"
+      nodes_render_text = f"Nodes expanded till now: {self.total_nodes_1 if self.turn==0 else self.total_nodes_2}"
+      piece_eaten_render_text = f"Piece eaten till now: {self.eat_piece}"
+
+      steps_text = pygame.font.Font(None, 24).render(steps_render_text, True, (0,0,0))
+      steps_text_rect = steps_text.get_rect()
+      steps_text_rect.midright = (self.width - 20, 150)
+
+      self.scene.blit(steps_text, steps_text_rect)
+
+      nodes_text = pygame.font.Font(None, 24).render(nodes_render_text, True, (0,0,0))
+      nodes_text_rect = nodes_text.get_rect()
+      nodes_text_rect.midright = (self.width - 20, 200)
+
+      self.scene.blit(nodes_text, nodes_text_rect)
+
+      piece_eaten_text = pygame.font.Font(None, 24).render(piece_eaten_render_text, True, (0,0,0))
+      piece_eaten_text_rect = piece_eaten_text.get_rect()
+      piece_eaten_text_rect.midright = (self.width - 20, 250)
+
+      self.scene.blit(piece_eaten_text, piece_eaten_text_rect)
+
   def movepiece(self):
     self.boardmatrix[self.new_x][self.new_y] = self.boardmatrix[self.ori_x][self.ori_y]
     self.boardmatrix[self.ori_x][self.ori_y] = 0
@@ -207,19 +246,7 @@ class GameScene(Scene):
 
   def isreset(self, pos):
     x, y = pos
-    if 670 >= x >= 590 and 50 <= y <= 130:
-        return True
-    return False
-
-  def iscomputer(self, pos):
-    x, y = pos
-    if 590 <= x <= 670 and 200 <= y <= 280:
-        return True
-    return False
-
-  def isauto(self, pos):
-    x, y = pos
-    if 590 <= x <= 670 and 340 <= y <= 420:
+    if 670 >= x >= 590 and 150 <= y <= 230:
         return True
     return False
 
@@ -273,7 +300,6 @@ class GameScene(Scene):
   def isgoalstate(self, base=0):
     if base == 0:
         if 2 in self.boardmatrix[0] or 1 in self.boardmatrix[7]:
-            print("2 or 1")
             return True
         else:
             for line in self.boardmatrix:

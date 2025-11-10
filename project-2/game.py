@@ -7,7 +7,7 @@ from scene.cmp_choice import PlayerVsCMPChoiceScene
 from scene.cmp_vs_cmp_choice import CMPVSCPMChoiceScene
 
 pygame.init()
-WIDTH, HEIGHT = 700, 560
+WIDTH, HEIGHT = 1200, 560
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 CLOCK = pygame.time.Clock()
 
