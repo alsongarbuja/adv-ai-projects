@@ -1,3 +1,4 @@
+import os
 import pygame
 
 class Button():
@@ -8,13 +9,14 @@ class Button():
     self.text_input = text_input
     self.base_color = base_color
     self.hovering_color = hovering_color
-    self.image = pygame.image.load("assets/button_rect.png")
+    self.image = pygame.image.load_extended(os.path.join('assets', 'btn-bg.png'))
+    self.scaled_image = pygame.transform.scale(self.image, (200, 50))
     self.text = self.font.render(self.text_input, True, self.base_color)
-    self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
+    self.rect = self.scaled_image.get_rect(center=(self.x_pos, self.y_pos))
     self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
 
   def update(self, screen: pygame.Surface):
-    screen.blit(self.image, self.rect)
+    screen.blit(self.scaled_image, self.rect)
     screen.blit(self.text, self.text_rect)
 
   def checkForInput(self, position):

@@ -22,7 +22,7 @@ class PlayerVsCMPChoiceScene(Scene):
       font_color=(255, 255, 255),
       options=gv.AI_FUNCTION_TYPES_OPTIONS,
       font=pygame.font.Font(None, 18),
-      label_text="Algorithm for black",
+      label_text="Algorithm for green",
       selected_index=gv.ai_function_one_type_index,
       on_change=gv.handle_ai_one_function_type_index_change,
     )
@@ -33,7 +33,7 @@ class PlayerVsCMPChoiceScene(Scene):
       font_color=(255, 255, 255),
       options=gv.AI_FUNCTION_OPTIONS,
       font=pygame.font.Font(None, 18),
-      label_text="Function type for black",
+      label_text="Function type for green",
       selected_index=gv.ai_function_one_index,
       on_change=gv.handle_ai_one_function_index_change,
     )

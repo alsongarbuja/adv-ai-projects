@@ -19,9 +19,10 @@ class GameScene(Scene):
     self.scene.fill([255, 255, 255])
 
     self.board = 0
-    self.blackpiece = 0
+    self.greenpiece = 0
     self.whitepiece = 0
-    self.outline = 0
+    self.greenoutline = 0
+    self.whiteoutline = 0
     self.reset = 0
     self.winner = 0
     self.computer = None
@@ -122,12 +123,14 @@ class GameScene(Scene):
   def initgraphics(self):
     self.board = pygame.image.load_extended(os.path.join('assets', 'board.png'))
     self.board = pygame.transform.scale(self.board, (560, 560))
-    self.blackpiece = pygame.image.load_extended(os.path.join('assets', 'black-piece.png'))
-    self.blackpiece = pygame.transform.scale(self.blackpiece, (self.sizeofcell- 20, self.sizeofcell - 20))
+    self.greenpiece = pygame.image.load_extended(os.path.join('assets', 'green-piece.png'))
+    self.greenpiece = pygame.transform.scale(self.greenpiece, (self.sizeofcell- 20, self.sizeofcell - 20))
     self.whitepiece = pygame.image.load_extended(os.path.join('assets', 'white-piece.png'))
     self.whitepiece = pygame.transform.scale(self.whitepiece, (self.sizeofcell - 20, self.sizeofcell - 20))
-    self.outline = pygame.image.load_extended(os.path.join('assets', 'outline.png'))
-    self.outline = pygame.transform.scale(self.outline, (self.sizeofcell - 10, self.sizeofcell - 10))
+    self.greenoutline = pygame.image.load_extended(os.path.join('assets', 'green-outline.png'))
+    self.greenoutline = pygame.transform.scale(self.greenoutline, (self.sizeofcell - 10, self.sizeofcell - 10))
+    self.whiteoutline = pygame.image.load_extended(os.path.join('assets', 'white-outline.png'))
+    self.whiteoutline = pygame.transform.scale(self.whiteoutline, (self.sizeofcell - 10, self.sizeofcell - 10))
     self.reset = pygame.image.load_extended(os.path.join('assets', 'reset.jpg'))
     self.reset = pygame.transform.scale(self.reset, (80, 80))
     self.winner = pygame.image.load_extended(os.path.join('assets', 'winner.png'))
@@ -158,7 +161,7 @@ class GameScene(Scene):
     for i in range(8):
       for j in range(8):
         if self.boardmatrix[i][j] == 1:
-          self.scene.blit(self.blackpiece, (self.sizeofcell * j + 15, self.sizeofcell * i + 15))
+          self.scene.blit(self.greenpiece, (self.sizeofcell * j + 15, self.sizeofcell * i + 15))
         elif self.boardmatrix[i][j] == 2:
           self.scene.blit(self.whitepiece, (self.sizeofcell * j + 15, self.sizeofcell * i + 15))
     if self.status == 1:
@@ -172,15 +175,15 @@ class GameScene(Scene):
             y3 = self.ori_y
             # left down
             if y1 >= 0 and self.boardmatrix[x1][y1] != 1:
-                self.scene.blit(self.outline,
+                self.scene.blit(self.greenoutline,
                                   (self.sizeofcell * y1 + 4, self.sizeofcell * x1 + 4))
             # right down
             if y2 <= 7 and self.boardmatrix[x2][y2] != 1:
-                self.scene.blit(self.outline,
+                self.scene.blit(self.greenoutline,
                                   (self.sizeofcell * y2 + 4, self.sizeofcell * x2 + 4))
             # down
             if x3 <= 7 and self.boardmatrix[x3][y3] == 0:
-                self.scene.blit(self.outline,
+                self.scene.blit(self.greenoutline,
                                   (self.sizeofcell * y3 + 4, self.sizeofcell * x3 + 4))
 
         if self.boardmatrix[self.ori_x][self.ori_y] == 2:
@@ -192,21 +195,21 @@ class GameScene(Scene):
             y3 = self.ori_y
             # left up
             if y1 >= 0 and self.boardmatrix[x1][y1] != 2:
-                self.scene.blit(self.outline,
+                self.scene.blit(self.whiteoutline,
                                   (self.sizeofcell * y1 + 4, self.sizeofcell * x1 + 4))
             # right up
             if y2 <= 7 and self.boardmatrix[x2][y2] != 2:
-                self.scene.blit(self.outline,
+                self.scene.blit(self.whiteoutline,
                                   (self.sizeofcell * y2 + 4, self.sizeofcell * x2 + 4))
             # up
             if x3 >= 0 and self.boardmatrix[x3][y3] == 0:
-                self.scene.blit(self.outline,
+                self.scene.blit(self.whiteoutline,
                                   (self.sizeofcell * y3 + 4, self.sizeofcell * x3 + 4))
     if self.status == 3:
         self.scene.blit(self.winner, (100, 100))
 
   def draw_metrics(self):
-    turn_text = pygame.font.Font(None, 24).render(f"Current player: {'Black' if self.turn==0 else 'White'}", True, (0,0,0))
+    turn_text = pygame.font.Font(None, 24).render(f"Current player: {'Green' if self.turn==0 else 'White'}", True, (0,0,0))
     turn_text_rect = turn_text.get_rect()
     turn_text_rect.midright = (self.width - 20, 100)
 

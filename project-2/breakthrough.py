@@ -17,7 +17,7 @@ def alter_turn(turn) -> int:
     Simple function to alter the players turn and return it
 
     Returns:
-      Integer representing next player turn (0 - Black, 1 - White)
+      Integer representing next player turn (0 - Green, 1 - White)
     """
     return 1 + (turn * -1)
 
@@ -28,7 +28,7 @@ def move_single_piece(initialPosition, direction, currentTurn):
   Args:
     initialPosition: Coordinate of the position
     direction: the direction to move to (1 - straight, 2 - left diagonal, 3 - right diagonal)
-    currentTurn: current player (0 for black, 1 for white)
+    currentTurn: current player (0 for green, 1 for white)
   """
   to_move = 1 if currentTurn == 0 else -1
 
@@ -52,28 +52,28 @@ class State:
       self,
       boardmatrix=None,
       currentTurn=0,
-      blackPositions=None,
+      greenPositions=None,
       whitePositions=None,
       width=8,
       height=8,
-      num_black_pieces=0,
+      num_green_pieces=0,
       num_white_pieces=0,
       function_type="offensive-1"
     ):
     self.currentTurn = currentTurn
-    self.num_black_pieces = num_black_pieces
+    self.num_green_pieces = num_green_pieces
     self.num_white_pieces = num_white_pieces
     self.width = width
     self.height = height
     self.function_type = function_type
-    self.blackPositions = [] if blackPositions is None else blackPositions
+    self.greenPositions = [] if greenPositions is None else greenPositions
     self.whitePositions = [] if whitePositions is None else whitePositions
 
     if boardmatrix is not None:
       for x in range(self.height):
         for y in range(self.width):
           if boardmatrix[x][y] == 1:
-            self.blackPositions.append((x, y))
+            self.greenPositions.append((x, y))
           if boardmatrix[x][y] == 2:
             self.whitePositions.append((x, y))
 
@@ -88,15 +88,15 @@ class State:
       State after moving the piece
     """
 
-    black_positions = list(self.blackPositions)
+    green_positions = list(self.greenPositions)
     white_positions = list(self.whitePositions)
 
-    # If the turn is black's
+    # If the turn is green's
     if action.turn == 0:
-      if action.coord in self.blackPositions:
-        index = black_positions.index(action.coord)
+      if action.coord in self.greenPositions:
+        index = green_positions.index(action.coord)
         new_pos = move_single_piece(action.coord, action.direction, action.turn)
-        black_positions[index] = new_pos
+        green_positions[index] = new_pos
         if new_pos in self.whitePositions:
           white_positions.remove(new_pos)
       else:
@@ -108,12 +108,12 @@ class State:
         index = white_positions.index(action.coord)
         new_pos = move_single_piece(action.coord, action.direction, action.turn)
         white_positions[index] = new_pos
-        if new_pos in self.blackPositions:
-          black_positions.remove(new_pos)
+        if new_pos in self.greenPositions:
+          green_positions.remove(new_pos)
       else:
         print("Action is not valid")
 
-    new_state = State(function_type=self.function_type, blackPositions=black_positions, whitePositions=white_positions, currentTurn=alter_turn(action.turn), num_black_pieces=self.num_black_pieces, num_white_pieces=self.num_white_pieces, height=self.height, width=self.width)
+    new_state = State(function_type=self.function_type, greenPositions=green_positions, whitePositions=white_positions, currentTurn=alter_turn(action.turn), num_green_pieces=self.num_green_pieces, num_white_pieces=self.num_white_pieces, height=self.height, width=self.width)
     return new_state
 
   def get_actions(self, pos=None):
@@ -125,8 +125,8 @@ class State:
     """
     available_actions = []
 
-    to_use_positions = self.blackPositions if self.currentTurn == 0 else self.whitePositions if pos is None else [pos]
-    opponent_positions = self.whitePositions if self.currentTurn == 0 else self.blackPositions
+    to_use_positions = self.greenPositions if self.currentTurn == 0 else self.whitePositions if pos is None else [pos]
+    opponent_positions = self.whitePositions if self.currentTurn == 0 else self.greenPositions
 
     for pos in sorted(to_use_positions, key=lambda p: (p[0], -p[1]), reverse=True):
       for direc in [1, 2, 3]:
@@ -146,14 +146,14 @@ class State:
     """
 
     if type == 0:
-      if 0 in [item[0] for item in self.whitePositions] or len(self.blackPositions) == 0:
+      if 0 in [item[0] for item in self.whitePositions] or len(self.greenPositions) == 0:
         return 2
-      if self.height-1 in [item[0] for item in self.blackPositions] or len(self.whitePositions) == 0:
+      if self.height-1 in [item[0] for item in self.greenPositions] or len(self.whitePositions) == 0:
         return 1
       return 0
     else:
       piecesInBase = 0
-      for coord in self.blackPositions:
+      for coord in self.greenPositions:
         if coord[0] == self.height-1:
           piecesInBase += 1
       for coord in self.whitePositions:
@@ -163,7 +163,7 @@ class State:
       if piecesInBase >= 3:
         return True
 
-      if len(self.blackPositions) <= 2 or len(self.whitePositions) <= 2:
+      if len(self.greenPositions) <= 2 or len(self.whitePositions) <= 2:
         return True
 
     return False
@@ -180,10 +180,10 @@ class State:
     Simple funciton to count the remaining pieces of the player
 
     Args:
-      turn: A integer signifying which player turn it is (0 - Black, 1 - White)
+      turn: A integer signifying which player turn it is (0 - Green, 1 - White)
     """
     if turn == 0:
-      return len(self.blackPositions)
+      return len(self.greenPositions)
     elif turn == 1:
       return len(self.whitePositions)
     return 0
@@ -193,10 +193,10 @@ class State:
     Simple function to give certian points to each player based on the number of pieces that are moving forward
 
     Args:
-      turn: A integer signifying the current player (0 - Black, 1 - White)
+      turn: A integer signifying the current player (0 - Green, 1 - White)
     """
     if turn == 0:
-      return sum(pos[0] for pos in self.blackPositions)
+      return sum(pos[0] for pos in self.greenPositions)
     elif turn == 1:
       # Decreasing 7 since white pieces move up the board so the lesser the x coordinate the more point they score
       return sum(7 - pos[0] for pos in self.whitePositions)
@@ -251,8 +251,8 @@ class State:
     """
     threats = 0
 
-    pieces_to_use = self.blackPositions if turn == 0 else self.whitePositions
-    opponents_to_use = self.whitePositions if turn == 0 else self.blackPositions
+    pieces_to_use = self.greenPositions if turn == 0 else self.whitePositions
+    opponents_to_use = self.whitePositions if turn == 0 else self.greenPositions
     direction = 1 if turn == 0 else -1
 
     for (r, c) in pieces_to_use:
@@ -273,7 +273,7 @@ class State:
     """
     safe = 0
     direc = 1 if turn == 0 else -1
-    pieces_to_use = self.blackPositions if turn == 0 else self.whitePositions
+    pieces_to_use = self.greenPositions if turn == 0 else self.whitePositions
     pieces_set = set(pieces_to_use)
     for (r, c) in pieces_to_use:
       for dc in (-1, 1):
@@ -292,7 +292,7 @@ class State:
     center_cols = {(self.height-1) // 2}
     if self.height % 2 != 0:
       center_cols.add((self.height-1) //  2 + 1)
-    pieces_to_use = self.blackPositions if turn == 0 else self.whitePositions
+    pieces_to_use = self.greenPositions if turn == 0 else self.whitePositions
     return sum(1 for _, c in pieces_to_use if c in center_cols)
 
   def get_matrix(self):
@@ -300,7 +300,7 @@ class State:
     Function to get the current board matrix
     """
     matrix = [[0 for _ in range(self.width)] for _ in range(self.height)]
-    for item in self.blackPositions:
+    for item in self.greenPositions:
       matrix[item[0]][item[1]] = 1
     for item in self.whitePositions:
       matrix[item[0]][item[1]] = 2

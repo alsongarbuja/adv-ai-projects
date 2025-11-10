@@ -64,6 +64,6 @@ class AlphaBetaAgent:
     if self.playerTurn == 0:
       self.piece_num = next_state.num_white_pieces
     if self.playerTurn == 1:
-      self.piece_num = next_state.num_black_pieces
+      self.piece_num = next_state.num_green_pieces
 
     return next_state, self.nodes, self.piece_num
