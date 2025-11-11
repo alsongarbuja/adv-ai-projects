@@ -15,7 +15,7 @@ class AlphaBetaAgent:
       return state.get_value(self.playerTurn)
     value = MIN_VAL
 
-    for action in sorted(state.get_actions(), key=lambda action: self.orderaction(action, state), reverse=True):
+    for action in sorted(state.get_actions(), key=lambda action: action.coord[0], reverse=True):
       self.nodes += 1
 
       value = max(value, self.mini(state.move_piece(action), alpha, beta, depth+1))
@@ -29,7 +29,7 @@ class AlphaBetaAgent:
       return state.get_value(self.playerTurn)
     value = MAX_VAL
 
-    for action in sorted(state.get_actions(), key=lambda action: self.orderaction(action, state), reverse=True):
+    for action in sorted(state.get_actions(), key=lambda action: action.coord[0], reverse=True):
       self.nodes += 1
 
       value = min(value, self.maxi(state.move_piece(action), alpha, beta, depth+1))
@@ -37,9 +37,6 @@ class AlphaBetaAgent:
         return value
       beta = min(beta, value)
     return value
-
-  def orderaction(self, action, state):
-    return 0
 
   def alpha_beta_decision(self):
     final_action = None
