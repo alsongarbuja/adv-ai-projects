@@ -23,11 +23,17 @@ class GameScene(Scene):
     self.whitepiece = 0
     self.greenoutline = 0
     self.whiteoutline = 0
+    self.metric_bg = 0
     self.reset = 0
     self.winner = 0
     self.computer = None
     self.minimax_profile = None
     self.alphabeta_profile = None
+    self.player_profile = None
+    self.off_one = None
+    self.off_two = None
+    self.def_one = None
+    self.def_two = None
 
     self.status = 0
     self.turn = 0
@@ -95,7 +101,9 @@ class GameScene(Scene):
         exit()
       elif event.type == pygame.MOUSEBUTTONDOWN and self.isreset(event.pos):
         self.boardmatrix = copy.deepcopy(initialBoardMatrix)
-        self.status = 0
+        self.status = 5 if gv.gameplay_option == 2 else 0
+        self.total_nodes_1, self.total_nodes_2, self.total_step_1, self.total_step_2 = 0, 0, 0, 0
+        self.total_time_1, self.total_time_2 = 0, 0
         self.turn = 0
       elif event.type == pygame.MOUSEBUTTONDOWN and self.status == 0:
         x, y = event.pos
@@ -121,42 +129,91 @@ class GameScene(Scene):
             self.ori_y = self.new_y
 
   def initgraphics(self):
+    # Load board
     self.board = pygame.image.load_extended(os.path.join('assets', 'board.png'))
     self.board = pygame.transform.scale(self.board, (560, 560))
+
+    # Load pieces
     self.greenpiece = pygame.image.load_extended(os.path.join('assets', 'green-piece.png'))
     self.greenpiece = pygame.transform.scale(self.greenpiece, (self.sizeofcell- 20, self.sizeofcell - 20))
     self.whitepiece = pygame.image.load_extended(os.path.join('assets', 'white-piece.png'))
     self.whitepiece = pygame.transform.scale(self.whitepiece, (self.sizeofcell - 20, self.sizeofcell - 20))
+
+    # Load the outlines
     self.greenoutline = pygame.image.load_extended(os.path.join('assets', 'green-outline.png'))
     self.greenoutline = pygame.transform.scale(self.greenoutline, (self.sizeofcell - 10, self.sizeofcell - 10))
     self.whiteoutline = pygame.image.load_extended(os.path.join('assets', 'white-outline.png'))
     self.whiteoutline = pygame.transform.scale(self.whiteoutline, (self.sizeofcell - 10, self.sizeofcell - 10))
-    self.reset = pygame.image.load_extended(os.path.join('assets', 'reset.jpg'))
+
+    # Load reset
+    self.reset = pygame.image.load_extended(os.path.join('assets', 'return.png'))
     self.reset = pygame.transform.scale(self.reset, (80, 80))
+
+    # Load extra UI assets
     self.winner = pygame.image.load_extended(os.path.join('assets', 'winner.png'))
-    self.winner = pygame.transform.scale(self.winner, (250, 250))
+    self.winner = pygame.transform.scale(self.winner, (100, 100))
+    self.metric_bg = pygame.image.load_extended(os.path.join('assets', 'metrics-bg.png'))
+    self.metric_bg = pygame.transform.scale(self.metric_bg, (500, 200))
+
+    # Load the algorithm profiles
     self.minimax_profile = pygame.image.load_extended(os.path.join('assets', 'min-max-profile.png'))
     self.minimax_profile = pygame.transform.scale(self.minimax_profile, (80, 80))
     self.alphabeta_profile = pygame.image.load_extended(os.path.join('assets', 'alpha-beta-profile.png'))
     self.alphabeta_profile = pygame.transform.scale(self.alphabeta_profile, (80, 80))
 
+    # Load the player profile
+    self.player_profile = pygame.image.load_extended(os.path.join('assets', 'character.png'))
+    self.player_profile = pygame.transform.scale(self.player_profile, (80, 80))
+
+    # Load evaluation function icons
+    self.off_one = pygame.image.load_extended(os.path.join('assets', 'sword.png'))
+    self.off_one = pygame.transform.scale(self.off_one, (30, 30))
+    self.off_two = pygame.image.load_extended(os.path.join('assets', 'dice_sword.png'))
+    self.off_two = pygame.transform.scale(self.off_two, (30, 30))
+    self.def_one = pygame.image.load_extended(os.path.join('assets', 'shield.png'))
+    self.def_one = pygame.transform.scale(self.def_one, (30, 30))
+    self.def_two = pygame.image.load_extended(os.path.join('assets', 'dice_shield.png'))
+    self.def_two = pygame.transform.scale(self.def_two, (30, 30))
+
   def draw(self, scene):
     if gv.gameplay_option == 2 and not self.isgoalstate():
       self.status = 5
     self.scene.blit(self.board, (0, 0))
-    self.scene.blit(self.reset, (590, 150))
+    self.scene.blit(self.reset, (590, self.height // 2 - 50))
 
     self.draw_metrics()
 
-    players_pos = [(590, 10), (590, 420)]
-    if gv.ai_function_one_type_index == 0 and gv.gameplay_option != 0:
-      self.scene.blit(self.minimax_profile, players_pos[0])
-    if gv.ai_function_one_type_index == 1 and gv.gameplay_option != 0:
-      self.scene.blit(self.alphabeta_profile, players_pos[0])
-    if gv.ai_function_two_type_index == 0 and gv.gameplay_option == 2:
-      self.scene.blit(self.minimax_profile, players_pos[1])
-    if gv.ai_function_two_type_index == 1 and gv.gameplay_option == 2:
-      self.scene.blit(self.alphabeta_profile, players_pos[1])
+    players_pos = [(620, 50), (620, self.height - 190)]
+    if gv.gameplay_option != 0:
+      if gv.ai_function_one_type_index == 0:
+        self.scene.blit(self.minimax_profile, players_pos[0])
+      elif gv.ai_function_one_type_index == 1:
+        self.scene.blit(self.alphabeta_profile, players_pos[0])
+      if gv.ai_function_one_index == 0:
+        self.scene.blit(self.off_one, (players_pos[0][0], players_pos[0][1]+90))
+      elif gv.ai_function_one_index == 1:
+        self.scene.blit(self.def_one, (players_pos[0][0], players_pos[0][1]+90))
+      elif gv.ai_function_one_index == 2:
+        self.scene.blit(self.off_two, (players_pos[0][0], players_pos[0][1]+90))
+      elif gv.ai_function_one_index == 3:
+        self.scene.blit(self.def_two, (players_pos[0][0], players_pos[0][1]+90))
+
+    if gv.gameplay_option == 1:
+      self.scene.blit(self.player_profile, players_pos[1])
+
+    if gv.gameplay_option == 2:
+      if gv.ai_function_two_type_index == 0:
+        self.scene.blit(self.minimax_profile, players_pos[1])
+      elif gv.ai_function_two_type_index == 1:
+        self.scene.blit(self.alphabeta_profile, players_pos[1])
+      if gv.ai_function_two_index == 0:
+        self.scene.blit(self.off_one, (players_pos[1][0], players_pos[1][1]+90))
+      elif gv.ai_function_two_index == 1:
+        self.scene.blit(self.def_one, (players_pos[1][0], players_pos[1][1]+90))
+      elif gv.ai_function_two_index == 2:
+        self.scene.blit(self.off_two, (players_pos[1][0], players_pos[1][1]+90))
+      elif gv.ai_function_two_index == 3:
+        self.scene.blit(self.def_two, (players_pos[1][0], players_pos[1][1]+90))
 
     for i in range(8):
       for j in range(8):
@@ -206,37 +263,88 @@ class GameScene(Scene):
                 self.scene.blit(self.whiteoutline,
                                   (self.sizeofcell * y3 + 4, self.sizeofcell * x3 + 4))
     if self.status == 3:
-        self.scene.blit(self.winner, (100, 100))
+        self.scene.blit(self.winner, (self.width // 2 + 100, self.height // 2 - 50))
 
   def draw_metrics(self):
-    turn_text = pygame.font.Font(None, 24).render(f"Current player: {'Green' if self.turn==0 else 'White'}", True, (0,0,0))
+    self.scene.blit(self.metric_bg, (590, 20))
+    self.scene.blit(self.metric_bg, (590, self.height - 220))
+
+    player_text = f"Current player: {'Green' if self.turn==0 else 'White'}" if self.status != 3 else f"Winner: {'Green' if self.turn==1 else 'White'}"
+
+    turn_text = pygame.font.Font(None, 24).render(player_text, True, (0,0,0))
     turn_text_rect = turn_text.get_rect()
-    turn_text_rect.midright = (self.width - 20, 100)
+    turn_text_rect.center = (self.width // 2 + 300, self.height // 2)
 
     self.scene.blit(turn_text, turn_text_rect)
 
-    if self.status == 5 or (gv.gameplay_option == 1 and self.turn == 0):
-      steps_render_text = f"Steps till now: {self.total_step_1 if self.turn==0 else self.total_step_2}"
-      nodes_render_text = f"Nodes expanded till now: {self.total_nodes_1 if self.turn==0 else self.total_nodes_2}"
-      piece_eaten_render_text = f"Piece eaten till now: {self.eat_piece}"
+    # if self.status == 5 or (gv.gameplay_option == 1 and self.turn == 0):
+    # Draw metrics for Green
+    steps_text = pygame.font.Font(None, 24).render(f"Number of Moves: {self.total_step_1}", True, (0,0,0))
+    steps_text_rect = steps_text.get_rect()
+    steps_text_rect.midright = (self.width - 150, 60)
 
-      steps_text = pygame.font.Font(None, 24).render(steps_render_text, True, (0,0,0))
-      steps_text_rect = steps_text.get_rect()
-      steps_text_rect.midright = (self.width - 20, 150)
+    self.scene.blit(steps_text, steps_text_rect)
 
-      self.scene.blit(steps_text, steps_text_rect)
+    nodes_text = pygame.font.Font(None, 24).render(f"Nodes expanded till now: {self.total_nodes_1}", True, (0,0,0))
+    nodes_text_rect = nodes_text.get_rect()
+    nodes_text_rect.midright = (self.width - 150, 90)
 
-      nodes_text = pygame.font.Font(None, 24).render(nodes_render_text, True, (0,0,0))
-      nodes_text_rect = nodes_text.get_rect()
-      nodes_text_rect.midright = (self.width - 20, 200)
+    self.scene.blit(nodes_text, nodes_text_rect)
 
-      self.scene.blit(nodes_text, nodes_text_rect)
+    nodes_avg_text = pygame.font.Font(None, 24).render(f"Avg Nodes expanded per move: {self.total_nodes_1/(self.total_step_1 if self.total_step_1 > 0 else 1):.3f}", True, (0,0,0))
+    nodes_avg_text_rect = nodes_avg_text.get_rect()
+    nodes_avg_text_rect.midright = (self.width - 150, 120)
 
-      piece_eaten_text = pygame.font.Font(None, 24).render(piece_eaten_render_text, True, (0,0,0))
-      piece_eaten_text_rect = piece_eaten_text.get_rect()
-      piece_eaten_text_rect.midright = (self.width - 20, 250)
+    self.scene.blit(nodes_avg_text, nodes_avg_text_rect)
 
-      self.scene.blit(piece_eaten_text, piece_eaten_text_rect)
+    time_avg_text = pygame.font.Font(None, 24).render(f"Avg Time per move: {self.total_time_1/(self.total_step_1 if self.total_step_1 > 0 else 1):.3f}", True, (0,0,0))
+    time_avg_text_rect = time_avg_text.get_rect()
+    time_avg_text_rect.midright = (self.width - 150, 150)
+
+    self.scene.blit(time_avg_text, time_avg_text_rect)
+
+    piece_eaten_text = pygame.font.Font(None, 24).render(f"Pieces eaten: {16-self.get_pieces_eaten(1)}", True, (0,0,0))
+    piece_eaten_text_rect = piece_eaten_text.get_rect()
+    piece_eaten_text_rect.midright = (self.width - 150, 180)
+
+    self.scene.blit(piece_eaten_text, piece_eaten_text_rect)
+
+    # Draw metrics for White
+    steps_text_2 = pygame.font.Font(None, 24).render(f"Number of Moves: {self.total_step_2}", True, (0,0,0))
+    steps_text_rect_2 = steps_text_2.get_rect()
+    steps_text_rect_2.midright = (self.width - 150, self.height - 180)
+
+    self.scene.blit(steps_text_2, steps_text_rect_2)
+
+    nodes_text_2 = pygame.font.Font(None, 24).render(f"Nodes expanded till now: {self.total_nodes_2}", True, (0,0,0))
+    nodes_text_rect_2 = nodes_text_2.get_rect()
+    nodes_text_rect_2.midright = (self.width - 150, self.height - 150)
+
+    self.scene.blit(nodes_text_2, nodes_text_rect_2)
+
+    nodes_avg_text_2 = pygame.font.Font(None, 24).render(f"Avg Nodes expanded per move: {self.total_nodes_2/(self.total_step_2 if self.total_step_2 > 0 else 1):.3f}", True, (0,0,0))
+    nodes_avg_text_2_rect = nodes_avg_text_2.get_rect()
+    nodes_avg_text_2_rect.midright = (self.width - 150, self.height - 110)
+
+    self.scene.blit(nodes_avg_text_2, nodes_avg_text_2_rect)
+
+    time_avg_text_2 = pygame.font.Font(None, 24).render(f"Avg Time per move: {self.total_time_2/(self.total_step_2 if self.total_step_2 > 0 else 1):.3f}", True, (0,0,0))
+    time_avg_text_2_rect = time_avg_text_2.get_rect()
+    time_avg_text_2_rect.midright = (self.width - 150, self.height - 80)
+
+    self.scene.blit(time_avg_text_2, time_avg_text_2_rect)
+
+    piece_eaten_text_2 = pygame.font.Font(None, 24).render(f"Pieces eaten: {16-self.get_pieces_eaten(0)}", True, (0,0,0))
+    piece_eaten_text_2_rect = piece_eaten_text_2.get_rect()
+    piece_eaten_text_2_rect.midright = (self.width - 150, self.height - 50)
+
+    self.scene.blit(piece_eaten_text_2, piece_eaten_text_2_rect)
+
+      # piece_eaten_text = pygame.font.Font(None, 24).render(f"Piece eaten till now: {self.eat_piece}", True, (0,0,0))
+      # piece_eaten_text_rect = piece_eaten_text.get_rect()
+      # piece_eaten_text_rect.midright = (self.width - 200, 140)
+
+      # self.scene.blit(piece_eaten_text, piece_eaten_text_rect)
 
   def movepiece(self):
     self.boardmatrix[self.new_x][self.new_y] = self.boardmatrix[self.ori_x][self.ori_y]
@@ -249,7 +357,7 @@ class GameScene(Scene):
 
   def isreset(self, pos):
     x, y = pos
-    if 670 >= x >= 590 and 150 <= y <= 230:
+    if 670 >= x >= 590 and (self.height // 2 - 50) <= y <= (self.height // 2 - 50) + 80:
         return True
     return False
 
@@ -280,7 +388,7 @@ class GameScene(Scene):
     self.boardmatrix = board.get_matrix()
     if self.turn == 0:
         self.total_nodes_1 += nodes
-    elif self.turn == 2:
+    elif self.turn == 1:
         self.total_nodes_2 += nodes
     self.turn = 1 + (self.turn * -1)
     self.eat_piece = 16 - piece
@@ -333,3 +441,6 @@ class GameScene(Scene):
         if count1 <= 2 or count2 <= 2:
             return True
     return False
+
+  def get_pieces_eaten(self, turn):
+    return sum(1 for r in self.boardmatrix for c in r if c == turn+1)
