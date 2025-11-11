@@ -15,7 +15,7 @@ class AlphaBetaAgent:
       return state.get_value(self.playerTurn)
     value = MIN_VAL
 
-    for action in sorted(state.get_actions(), key=lambda action: action.coord[0], reverse=True):
+    for action in sorted(state.get_actions(), key=lambda action: action.coord[0]):
       self.nodes += 1
 
       value = max(value, self.mini(state.move_piece(action), alpha, beta, depth+1))

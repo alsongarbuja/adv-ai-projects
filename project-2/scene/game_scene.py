@@ -77,23 +77,11 @@ class GameScene(Scene):
         self.total_time_1 += (time.process_time() - start)
         self.total_step_1 += 1
 
-        print('total_step_1 = ', self.total_step_1,
-              'total_nodes_1 = ', self.total_nodes_1,
-              'node_per_move_1 = ', self.total_nodes_1 / self.total_step_1,
-              'time_per_move_1 = ', self.total_time_1 / self.total_step_1,
-              'have_eaten = ', self.eat_piece)
-
       elif self.turn == 1:
         start = time.process_time()
         self.ai_move(gv.ai_function_two_type_index, gv.AI_FUNCTION_OPTIONS[gv.ai_function_two_index])
         self.total_time_2 += (time.process_time() - start)
         self.total_step_2 += 1
-
-        print('total_step_2 = ', self.total_step_2,
-              'total_nodes_2 = ', self.total_nodes_2,
-              'node_per_move_2 = ', self.total_nodes_2 / self.total_step_2,
-              'time_per_move_2 = ', self.total_time_2 / self.total_step_2,
-              'have_eaten: ', self.eat_piece)
 
   def handle_events(self, events):
     for event in events:
