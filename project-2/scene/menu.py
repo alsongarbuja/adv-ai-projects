@@ -36,7 +36,10 @@ class MenuScene(Scene):
         # If the play button is pressed change the scene to game scene
         if self.PLAY_BTN.checkForInput(MOUSE_POS):
           gv.gameplay_option = 0
-          self.manager.set_scene("game")
+          if gv.board_index == 0:
+            self.manager.set_scene("game")
+          else:
+            self.manager.set_scene("game-extended")
         # If the play with computer button is pressed change scene to choice scene for computer
         if self.PLAY_VS_BTN.checkForInput(MOUSE_POS):
           gv.gameplay_option = 1

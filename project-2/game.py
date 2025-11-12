@@ -5,6 +5,7 @@ from scene.menu import MenuScene
 from scene.game_scene import GameScene
 from scene.cmp_choice import PlayerVsCMPChoiceScene
 from scene.setting import SettingScene
+from scene.game_scene_extended import GameExtendedScene
 from scene.cmp_vs_cmp_choice import CMPVSCPMChoiceScene
 
 pygame.init()
@@ -16,6 +17,7 @@ def main():
   manager = SceneManager()
   manager.add_scene("menu", MenuScene(manager=manager, width=WIDTH, height=HEIGHT))
   manager.add_scene("game", GameScene(manager=manager, scene=SCREEN, width=WIDTH, height=HEIGHT))
+  manager.add_scene("game-extended", GameExtendedScene(manager=manager, scene=SCREEN, width=WIDTH, height=HEIGHT))
   manager.add_scene("choice-auto", CMPVSCPMChoiceScene(manager=manager, width=WIDTH, height=HEIGHT))
   manager.add_scene("choice-vs-cmp", PlayerVsCMPChoiceScene(manager=manager, width=WIDTH, height=HEIGHT))
   manager.add_scene("setting", SettingScene(manager=manager, width=WIDTH, height=HEIGHT))

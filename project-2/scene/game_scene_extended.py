@@ -9,7 +9,7 @@ from alphabeta import AlphaBetaAgent
 from scene.scene import Scene
 import scene.global_vars as gv
 
-class GameScene(Scene):
+class GameExtendedScene(Scene):
   def __init__(self, manager, scene: pygame.Surface, width: int, height: int):
     self.manager = manager
     self.width, self.height = width, height
@@ -42,7 +42,7 @@ class GameScene(Scene):
     self.new_x = 0
     self.new_y = 0
 
-    self.boardmatrix = copy.deepcopy(gv.initialBoardMatrices[0])
+    self.boardmatrix = copy.deepcopy(gv.initialBoardMatrices[1])
 
     self.total_nodes_1 = 0
     self.total_nodes_2 = 0
@@ -55,6 +55,7 @@ class GameScene(Scene):
     self.ai_delay_start = None
     self.ai_delay_duration = 200
 
+    pygame.display.set_mode((self.width, self.height))
     pygame.display.set_caption("Breakthrough Game")
 
     self.initgraphics()
@@ -87,7 +88,7 @@ class GameScene(Scene):
       if event.type == pygame.QUIT:
         exit()
       elif event.type == pygame.MOUSEBUTTONDOWN and self.isreset(event.pos):
-        self.boardmatrix = copy.deepcopy(gv.initialBoardMatrices[0])
+        self.boardmatrix = copy.deepcopy(gv.initialBoardMatrices[1])
         self.status = 5 if gv.gameplay_option == 2 else 0
         self.total_nodes_1, self.total_nodes_2, self.total_step_1, self.total_step_2 = 0, 0, 0, 0
         self.total_time_1, self.total_time_2 = 0, 0
@@ -116,8 +117,8 @@ class GameScene(Scene):
 
   def initgraphics(self):
     # Load board
-    self.board = pygame.image.load_extended(os.path.join('assets', 'board.png'))
-    self.board = pygame.transform.scale(self.board, (560, 560))
+    self.board = pygame.image.load_extended(os.path.join('assets', 'board_extended.png'))
+    self.board = pygame.transform.scale(self.board, (700, 360))
 
     # Load pieces
     self.greenpiece = pygame.image.load_extended(os.path.join('assets', 'green-piece.png'))
@@ -165,11 +166,11 @@ class GameScene(Scene):
     if gv.gameplay_option == 2 and not self.isgoalstate():
       self.status = 5
     self.scene.blit(self.board, (0, 0))
-    self.scene.blit(self.reset, (590, self.height // 2 - 50))
+    self.scene.blit(self.reset, (750, self.height // 2 - 50))
 
     self.draw_metrics()
 
-    players_pos = [(620, 50), (620, self.height - 190)]
+    players_pos = [(720, 50), (720, self.height - 190)]
     if gv.gameplay_option != 0:
       if gv.ai_function_one_type_index == 0:
         self.scene.blit(self.minimax_profile, players_pos[0])
@@ -249,17 +250,17 @@ class GameScene(Scene):
                 self.scene.blit(self.whiteoutline,
                                   (self.sizeofcell * y3 + 4, self.sizeofcell * x3 + 4))
     if self.status == 3:
-        self.scene.blit(self.winner, (self.width // 2 + 100, self.height // 2 - 50))
+        self.scene.blit(self.winner, (self.width // 2 + 300, self.height // 2 - 50))
 
   def draw_metrics(self):
-    self.scene.blit(self.metric_bg, (590, 20))
-    self.scene.blit(self.metric_bg, (590, self.height - 220))
+    self.scene.blit(self.metric_bg, (700, 20))
+    self.scene.blit(self.metric_bg, (700, self.height - 220))
 
     player_text = f"Current player: {'Green' if self.turn==0 else 'White'}" if self.status != 3 else f"Winner: {'Green' if self.turn==1 else 'White'}"
 
     turn_text = pygame.font.Font(None, 24).render(player_text, True, (0,0,0))
     turn_text_rect = turn_text.get_rect()
-    turn_text_rect.center = (self.width // 2 + 300, self.height // 2)
+    turn_text_rect.midright = (self.width - 20, self.height // 2)
 
     self.scene.blit(turn_text, turn_text_rect)
 
@@ -267,62 +268,62 @@ class GameScene(Scene):
     # Draw metrics for Green
     steps_text = pygame.font.Font(None, 24).render(f"Number of Moves: {self.total_step_1}", True, (0,0,0))
     steps_text_rect = steps_text.get_rect()
-    steps_text_rect.midright = (self.width - 150, 60)
+    steps_text_rect.midright = (self.width - 20, 60)
 
     self.scene.blit(steps_text, steps_text_rect)
 
     nodes_text = pygame.font.Font(None, 24).render(f"Nodes expanded till now: {self.total_nodes_1}", True, (0,0,0))
     nodes_text_rect = nodes_text.get_rect()
-    nodes_text_rect.midright = (self.width - 150, 90)
+    nodes_text_rect.midright = (self.width - 20, 90)
 
     self.scene.blit(nodes_text, nodes_text_rect)
 
     nodes_avg_text = pygame.font.Font(None, 24).render(f"Avg Nodes expanded per move: {self.total_nodes_1/(self.total_step_1 if self.total_step_1 > 0 else 1):.3f}", True, (0,0,0))
     nodes_avg_text_rect = nodes_avg_text.get_rect()
-    nodes_avg_text_rect.midright = (self.width - 150, 120)
+    nodes_avg_text_rect.midright = (self.width - 20, 120)
 
     self.scene.blit(nodes_avg_text, nodes_avg_text_rect)
 
     time_avg_text = pygame.font.Font(None, 24).render(f"Avg Time per move: {self.total_time_1/(self.total_step_1 if self.total_step_1 > 0 else 1):.3f}", True, (0,0,0))
     time_avg_text_rect = time_avg_text.get_rect()
-    time_avg_text_rect.midright = (self.width - 150, 150)
+    time_avg_text_rect.midright = (self.width - 20, 150)
 
     self.scene.blit(time_avg_text, time_avg_text_rect)
 
     piece_eaten_text = pygame.font.Font(None, 24).render(f"Pieces eaten: {16-self.get_pieces_eaten(1)}", True, (0,0,0))
     piece_eaten_text_rect = piece_eaten_text.get_rect()
-    piece_eaten_text_rect.midright = (self.width - 150, 180)
+    piece_eaten_text_rect.midright = (self.width - 20, 180)
 
     self.scene.blit(piece_eaten_text, piece_eaten_text_rect)
 
     # Draw metrics for White
     steps_text_2 = pygame.font.Font(None, 24).render(f"Number of Moves: {self.total_step_2}", True, (0,0,0))
     steps_text_rect_2 = steps_text_2.get_rect()
-    steps_text_rect_2.midright = (self.width - 150, self.height - 180)
+    steps_text_rect_2.midright = (self.width - 20, self.height - 180)
 
     self.scene.blit(steps_text_2, steps_text_rect_2)
 
     nodes_text_2 = pygame.font.Font(None, 24).render(f"Nodes expanded till now: {self.total_nodes_2}", True, (0,0,0))
     nodes_text_rect_2 = nodes_text_2.get_rect()
-    nodes_text_rect_2.midright = (self.width - 150, self.height - 150)
+    nodes_text_rect_2.midright = (self.width - 20, self.height - 150)
 
     self.scene.blit(nodes_text_2, nodes_text_rect_2)
 
     nodes_avg_text_2 = pygame.font.Font(None, 24).render(f"Avg Nodes expanded per move: {self.total_nodes_2/(self.total_step_2 if self.total_step_2 > 0 else 1):.3f}", True, (0,0,0))
     nodes_avg_text_2_rect = nodes_avg_text_2.get_rect()
-    nodes_avg_text_2_rect.midright = (self.width - 150, self.height - 110)
+    nodes_avg_text_2_rect.midright = (self.width - 20, self.height - 110)
 
     self.scene.blit(nodes_avg_text_2, nodes_avg_text_2_rect)
 
     time_avg_text_2 = pygame.font.Font(None, 24).render(f"Avg Time per move: {self.total_time_2/(self.total_step_2 if self.total_step_2 > 0 else 1):.3f}", True, (0,0,0))
     time_avg_text_2_rect = time_avg_text_2.get_rect()
-    time_avg_text_2_rect.midright = (self.width - 150, self.height - 80)
+    time_avg_text_2_rect.midright = (self.width - 20, self.height - 80)
 
     self.scene.blit(time_avg_text_2, time_avg_text_2_rect)
 
     piece_eaten_text_2 = pygame.font.Font(None, 24).render(f"Pieces eaten: {16-self.get_pieces_eaten(0)}", True, (0,0,0))
     piece_eaten_text_2_rect = piece_eaten_text_2.get_rect()
-    piece_eaten_text_2_rect.midright = (self.width - 150, self.height - 50)
+    piece_eaten_text_2_rect.midright = (self.width - 20, self.height - 50)
 
     self.scene.blit(piece_eaten_text_2, piece_eaten_text_2_rect)
 
@@ -337,7 +338,7 @@ class GameScene(Scene):
 
   def isreset(self, pos):
     x, y = pos
-    if 670 >= x >= 590 and (self.height // 2 - 50) <= y <= (self.height // 2 - 50) + 80:
+    if 830 >= x >= 750 and (self.height // 2 - 50) <= y <= (self.height // 2 - 50) + 80:
         return True
     return False
 
@@ -389,7 +390,7 @@ class GameScene(Scene):
 
   def isgoalstate(self):
     if gv.rule_index == 0:
-      if 2 in self.boardmatrix[0] or 1 in self.boardmatrix[7]:
+      if 2 in self.boardmatrix[0] or 1 in self.boardmatrix[len(self.boardmatrix)-1]:
         return True
       else:
         for line in self.boardmatrix:

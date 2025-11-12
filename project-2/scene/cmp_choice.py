@@ -55,7 +55,10 @@ class PlayerVsCMPChoiceScene(Scene):
       # If the play button is pressed change the scene to game scene
       elif e.type == pygame.MOUSEBUTTONDOWN:
         if self.PLAY_BTN.checkForInput(pygame.mouse.get_pos()):
-          self.manager.set_scene("game")
+          if gv.board_index == 0:
+            self.manager.set_scene("game")
+          else:
+            self.manager.set_scene("game-extended")
         if self.BACK_BTN.checkForInput(pygame.mouse.get_pos()):
           self.manager.set_scene("menu")
       self.DROP.handle_event(event=e)
