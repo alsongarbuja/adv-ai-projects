@@ -1,3 +1,4 @@
+import os
 import sys
 import pygame
 
@@ -31,22 +32,30 @@ class MenuScene(Scene):
         pygame.quit()
         sys.exit()
       elif e.type == pygame.MOUSEBUTTONDOWN:
+        MOUSE_POS = pygame.mouse.get_pos()
         # If the play button is pressed change the scene to game scene
-        if self.PLAY_BTN.checkForInput(pygame.mouse.get_pos()):
+        if self.PLAY_BTN.checkForInput(MOUSE_POS):
           gv.gameplay_option = 0
           self.manager.set_scene("game")
         # If the play with computer button is pressed change scene to choice scene for computer
-        if self.PLAY_VS_BTN.checkForInput(pygame.mouse.get_pos()):
+        if self.PLAY_VS_BTN.checkForInput(MOUSE_POS):
           gv.gameplay_option = 1
           self.manager.set_scene("choice-vs-cmp")
         # If the cmp vs cmp button is pressed change the scene to choice scene for computers
-        if self.CMP_VS.checkForInput(pygame.mouse.get_pos()):
+        if self.CMP_VS.checkForInput(MOUSE_POS):
           gv.gameplay_option = 2
           self.manager.set_scene("choice-auto")
+        if self.width - 150 <= MOUSE_POS[0] < self.width - 50 and 100 <= MOUSE_POS[1] < 200:
+          self.manager.set_scene("setting")
 
   def draw(self, surface):
     surface.fill((0, 0, 0))
 
+    settings_img = pygame.image.load_extended(os.path.join('assets', 'settings.png'))
+    settings_img = pygame.transform.scale(settings_img, (100, 100))
+    settings_img = pygame.transform.rotate(settings_img, 5)
+
+    surface.blit(settings_img, (self.width - 150, 50))
     surface.blit(self.title, (self.width // 2 - self.title.get_width() // 2, 80))
 
     for button in [self.PLAY_BTN, self.CMP_VS, self.PLAY_VS_BTN]:

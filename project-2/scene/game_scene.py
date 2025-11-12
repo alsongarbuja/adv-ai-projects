@@ -4,7 +4,6 @@ import os
 import copy
 import pygame
 
-from breakthrough import initialBoardMatrix
 from minimax import MiniMaxAgent
 from alphabeta import AlphaBetaAgent
 from scene.scene import Scene
@@ -43,7 +42,7 @@ class GameScene(Scene):
     self.new_x = 0
     self.new_y = 0
 
-    self.boardmatrix = copy.deepcopy(initialBoardMatrix)
+    self.boardmatrix = copy.deepcopy(gv.initialBoardMatrices[gv.board_index])
 
     self.total_nodes_1 = 0
     self.total_nodes_2 = 0
@@ -88,7 +87,7 @@ class GameScene(Scene):
       if event.type == pygame.QUIT:
         exit()
       elif event.type == pygame.MOUSEBUTTONDOWN and self.isreset(event.pos):
-        self.boardmatrix = copy.deepcopy(initialBoardMatrix)
+        self.boardmatrix = copy.deepcopy(gv.initialBoardMatrices[gv.board_index])
         self.status = 5 if gv.gameplay_option == 2 else 0
         self.total_nodes_1, self.total_nodes_2, self.total_step_1, self.total_step_2 = 0, 0, 0, 0
         self.total_time_1, self.total_time_2 = 0, 0
@@ -108,9 +107,9 @@ class GameScene(Scene):
         self.new_x = math.floor(y / self.sizeofcell)
         if self.isabletomove():
           self.movepiece()
-          if (self.new_x == 7 and self.boardmatrix[self.new_x][self.new_y] == 1) \
-            or (self.new_x == 0 and self.boardmatrix[self.new_x][self.new_y] == 2):
-            self.status = 3
+          # if (self.new_x == 7 and self.boardmatrix[self.new_x][self.new_y] == 1) \
+          #   or (self.new_x == 0 and self.boardmatrix[self.new_x][self.new_y] == 2):
+          #   self.status = 3
         elif 0 <= self.new_x < len(self.boardmatrix) and 0 <= self.new_y < len(self.boardmatrix[0]):
           if self.boardmatrix[self.new_x][self.new_y] == self.boardmatrix[self.ori_x][self.ori_y]:
             self.ori_x = self.new_x
@@ -203,8 +202,8 @@ class GameScene(Scene):
       elif gv.ai_function_two_index == 3:
         self.scene.blit(self.def_two, (players_pos[1][0], players_pos[1][1]+90))
 
-    for i in range(8):
-      for j in range(8):
+    for i in range(len(self.boardmatrix)):
+      for j in range(len(self.boardmatrix[0])):
         if self.boardmatrix[i][j] == 1:
           self.scene.blit(self.greenpiece, (self.sizeofcell * j + 15, self.sizeofcell * i + 15))
         elif self.boardmatrix[i][j] == 2:
@@ -382,7 +381,6 @@ class GameScene(Scene):
     self.eat_piece = 16 - piece
     if self.isgoalstate():
       self.status = 3
-      print(self.boardmatrix)
 
   def ai_move_alphabeta(self, function_type):
     board, nodes, piece = AlphaBetaAgent(self.boardmatrix, self.turn, 4, function_type).alpha_beta_decision()
@@ -396,38 +394,38 @@ class GameScene(Scene):
     if self.isgoalstate():
         self.status = 3
 
-  def isgoalstate(self, base=0):
-    if base == 0:
-        if 2 in self.boardmatrix[0] or 1 in self.boardmatrix[7]:
-            return True
-        else:
-            for line in self.boardmatrix:
-                if 1 in line or 2 in line:
-                    return False
-        # return True
-    else:
-        count = 0
-        for i in self.boardmatrix[0]:
-            if i == 2:
-                count += 1
-        if count == 3:
-            return True
-        count = 0
-        for i in self.boardmatrix[7]:
-            if i == 1:
-                count += 1
-        if count == 3:
-            return True
-        count1 = 0
-        count2 = 0
+  def isgoalstate(self):
+    if gv.rule_index == 0:
+      if 2 in self.boardmatrix[0] or 1 in self.boardmatrix[7]:
+        return True
+      else:
         for line in self.boardmatrix:
-            for i in line:
-                if i == 1:
-                    count1 += 1
-                elif i == 2:
-                    count2 += 1
-        if count1 <= 2 or count2 <= 2:
-            return True
+          if 1 in line or 2 in line:
+            return False
+        return True
+    else:
+      count = 0
+      for i in self.boardmatrix[0]:
+        if i == 2:
+          count += 1
+      if count == 3:
+        return True
+      count = 0
+      for i in self.boardmatrix[7]:
+        if i == 1:
+          count += 1
+      if count == 3:
+        return True
+      count1 = 0
+      count2 = 0
+      for line in self.boardmatrix:
+        for i in line:
+          if i == 1:
+            count1 += 1
+          elif i == 2:
+            count2 += 1
+      if count1 <= 2 or count2 <= 2:
+        return True
     return False
 
   def get_pieces_eaten(self, turn):

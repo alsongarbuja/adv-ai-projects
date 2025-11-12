@@ -1,12 +1,12 @@
+import scene.global_vars as gv
 from breakthrough import State, MIN_VAL, MAX_VAL
 
 class AlphaBetaAgent:
-  def __init__(self, boardmatrix, playerTurn, maxDepth = 4, function_type="offensive-1", game_type=0):
+  def __init__(self, boardmatrix, playerTurn, maxDepth = 4, function_type="offensive-1"):
     self.boardmatrix = boardmatrix
     self.playerTurn = playerTurn
     self.maxDepth = maxDepth
     self.function_type = function_type
-    self.game_type = game_type
     self.nodes = 0
     self.piece_num = 0
 
@@ -40,7 +40,7 @@ class AlphaBetaAgent:
 
   def alpha_beta_decision(self):
     final_action = None
-    if self.game_type == 0:
+    if gv.board_index == 0:
       initialState = State(boardmatrix=self.boardmatrix, currentTurn=self.playerTurn, function_type=self.function_type)
     else:
       initialState = State(boardmatrix=self.boardmatrix, currentTurn=self.playerTurn, function_type=self.function_type, height=5, width=10)
@@ -49,7 +49,7 @@ class AlphaBetaAgent:
       self.nodes += 1
 
       state_ahead = initialState.move_piece(action)
-      if state_ahead.is_game_state(self.game_type):
+      if state_ahead.is_game_state():
         final_action = action
         break
       min_result = self.mini(state_ahead, MIN_VAL, MAX_VAL, 1)

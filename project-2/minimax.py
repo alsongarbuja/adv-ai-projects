@@ -1,5 +1,6 @@
 import numpy as np
 
+import scene.global_vars as gv
 from breakthrough import State
 
 class MiniMaxAgent:
@@ -32,7 +33,10 @@ class MiniMaxAgent:
   def minimax_search(self):
     action_to_do = None
 
-    currentState = State(boardmatrix=self.boardmatrix, currentTurn=self.playerTurn, function_type=self.function_type)
+    if gv.board_index == 0:
+      currentState = State(boardmatrix=self.boardmatrix, currentTurn=self.playerTurn, function_type=self.function_type)
+    else:
+      currentState = State(boardmatrix=self.boardmatrix, currentTurn=self.playerTurn, function_type=self.function_type, width=10, height=5)
 
     value = -np.inf
     for action in currentState.get_actions():

@@ -1,13 +1,5 @@
 import random
-
-initialBoardMatrix = [[1, 1, 1, 1, 1, 1, 1, 1],
-                        [1, 1, 1, 1, 1, 1, 1, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0],
-                        [2, 2, 2, 2, 2, 2, 2, 2],
-                        [2, 2, 2, 2, 2, 2, 2, 2]]
+import scene.global_vars as gv
 
 MIN_VAL = -float("inf")
 MAX_VAL = float("inf")
@@ -137,15 +129,12 @@ class State:
 
     return available_actions
 
-  def is_game_state(self, type = 0):
+  def is_game_state(self):
     """
     A function to check if the state is in game finished state or not
-
-    Args:
-      type: A optional integer to define the type of game (0 - Normal Breakthrough, 1 - 3 in Base Breakthrough)
     """
 
-    if type == 0:
+    if gv.rule_index == 0:
       if 0 in [item[0] for item in self.whitePositions] or len(self.greenPositions) == 0:
         return 2
       if self.height-1 in [item[0] for item in self.greenPositions] or len(self.whitePositions) == 0:
