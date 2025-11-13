@@ -10,6 +10,10 @@ All assests and necessary codes are within the project folder. We can just run t
 python game.py
 ```
 
+**For settings**
+
+Go to settings page by clicking the **setting icon** in the main menu page then change either the _board size_ or _rule_.
+
 ### Icons
 
 These are some of the icons and assets used in the game that have some meanings.
@@ -25,6 +29,7 @@ These are some of the icons and assets used in the game that have some meanings.
 | ![defensive heuristic 2](./assets/dice_shield.png)       | Defensive heuristic 2 |
 | ![reset button](./assets/return.png)                     | Reset button          |
 | ![game complete](./assets/winner.png)                    | Game complete         |
+| ![settings icon](./assets/settings.png)                  | Settings icon         |
 
 ### References
 
