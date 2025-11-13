@@ -290,7 +290,7 @@ class GameExtendedScene(Scene):
 
     self.scene.blit(time_avg_text, time_avg_text_rect)
 
-    piece_eaten_text = pygame.font.Font(None, 24).render(f"Pieces eaten: {16-self.get_pieces_eaten(1)}", True, (0,0,0))
+    piece_eaten_text = pygame.font.Font(None, 24).render(f"Pieces eaten: {20-self.get_pieces_eaten(1)}", True, (0,0,0))
     piece_eaten_text_rect = piece_eaten_text.get_rect()
     piece_eaten_text_rect.midright = (self.width - 20, 180)
 
@@ -321,7 +321,7 @@ class GameExtendedScene(Scene):
 
     self.scene.blit(time_avg_text_2, time_avg_text_2_rect)
 
-    piece_eaten_text_2 = pygame.font.Font(None, 24).render(f"Pieces eaten: {16-self.get_pieces_eaten(0)}", True, (0,0,0))
+    piece_eaten_text_2 = pygame.font.Font(None, 24).render(f"Pieces eaten: {20-self.get_pieces_eaten(0)}", True, (0,0,0))
     piece_eaten_text_2_rect = piece_eaten_text_2.get_rect()
     piece_eaten_text_2_rect.midright = (self.width - 20, self.height - 50)
 
