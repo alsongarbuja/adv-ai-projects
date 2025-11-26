@@ -17,4 +17,4 @@ This repo contains all the project source codes, documentation and resources tha
 
 3. [Project - 3 (GD, SGD, NN)](https://github.com/alsongarbuja/adv-ai-projects/blob/main/project-3/README.md)
 
-> This project contains code for `Gradient Descent (GD)` optimizer, `Stochastic Gradient (SGD)` optimizer and a self-developed Neural Network for ....
+> This project contains code for `Gradient Descent (GD)` optimizer, `Stochastic Gradient (SGD)` optimizer and a self-developed Neural Network for classificaiton of handwritten devanagrik letters

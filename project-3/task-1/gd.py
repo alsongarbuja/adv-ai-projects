@@ -48,7 +48,7 @@ def normalize_features(X, Y):
     Y_norm = (Y - Y.min()) / (Y.max() - Y.min())
     return X_norm, Y_norm
 
-def plot_data(x, y, data):
+def plot_data(x, y, data, epochs=100, showLegend=True):
   """
   plotting the data in the matplot graph
 
@@ -61,7 +61,16 @@ def plot_data(x, y, data):
   plt.scatter(x, y, color='green', label='Data Points', alpha=0.5)
   x_line = np.linspace(min(x), max(x), 100)
 
-  for epoch, params in sorted(data.items()):
+  use_data = {}
+
+  if showLegend:
+    for i in range(len(data)):
+      if i >= 9 and (i + 1) % (epochs/10) == 0:
+        use_data[i] = data[i]
+  else:
+    use_data = data
+
+  for epoch, params in sorted(use_data.items()):
     y_line = np.zeros_like(x_line)
     for i, coeff in enumerate(params):
       y_line += coeff * x_line** i
@@ -70,7 +79,8 @@ def plot_data(x, y, data):
   plt.xlabel('Normalized X')
   plt.ylabel('Normalized Y')
   plt.title(f'Gradient descent using {len(params)} features')
-  plt.legend()
+  if showLegend:
+    plt.legend(ncol=3,loc='upper left')
   plt.show()
 
 def build_feature(X, n):
@@ -110,10 +120,8 @@ def gradient_descent(y, f, lr, epochs):
     gradient = 2 / m * f.T.dot(errors)
     params -= lr * gradient
 
-    # Save the epoch parameters for every fixed rounds (e.g. every 10 rounds for 100 epochs, every 50 rounds for 500 epochs)
-    if epoch >= 9 and (epoch + 1) % (epochs/10) == 0:
-      epoch_data[epoch] = params.copy()
-      print(f"Epoch: {epoch+1}, params: {params}")
+    epoch_data[epoch] = params.copy()
+    print(f"Epoch: {epoch+1}, params: {params}")
 
   return params, epoch_data
 
@@ -128,10 +136,12 @@ parser.add_argument('--epochs', type=int, default=100, help="Number of epoch rou
 parser.add_argument('--lr', type=float, default=0.01, help="Learning rate")
 # add --features argument for number of features with default 3
 parser.add_argument('--features', type=int, default=3, help="Number of features")
+# add --all argument for showing all epochs
+parser.add_argument('--all', type=bool, default=False, help="Show all epochs")
 args = parser.parse_args()
 
 feature = build_feature(x_norm, args.features)
 params, epoch_data = gradient_descent(y_norm, feature, args.lr, args.epochs)
 print(f"Final Parameters: ", params)
 
-plot_data(x_norm, y_norm, epoch_data)
+plot_data(x_norm, y_norm, epoch_data, epochs=args.epochs, showLegend=not args.all)

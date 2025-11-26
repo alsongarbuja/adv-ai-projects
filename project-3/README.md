@@ -29,6 +29,8 @@ python gd.py
 > To change the number of features provide `--features` option followed by the number of features to use. _(e.g. python gd.py --features 4)_.
 >
 > To change the number of epochs provide `--epochs` option followed by the number of epochs to iterate. _(e.g. python gd.py --epochs 500)_.
+>
+> To see curve of all epochs provide `--all` option _(e.g. python gd.py --all True)_
 
 #### To run the SGD script
 
