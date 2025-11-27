@@ -8,9 +8,9 @@ And we also have to create a neural network for predicting hand written devanaga
 
 In order to run the task program files you need to have the following installed in your system.
 
-- Python (v)
-- numpy (v)
-- matplotlib (v)
+- Python (>= v3.14.0)
+- numpy (>= v2.3.5)
+- matplotlib (>= v3.10.7)
 
 ### Task 1
 

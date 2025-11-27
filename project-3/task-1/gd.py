@@ -83,6 +83,22 @@ def plot_data(x, y, data, epochs=100, showLegend=True):
     plt.legend(ncol=3,loc='upper left')
   plt.show()
 
+def plot_error_over_epoch(error_data, epochs=100):
+  """
+  plotting the loss data over epoch in the matplot graph
+
+  Args:
+    error_data: (list) list of error over epoch tuple
+    epochs: (int) number of epochs
+  """
+  plt.figure(figsize=(6, 6))
+  plt.plot(error_data)
+
+  plt.xlabel('Epochs')
+  plt.ylabel('Loss')
+  plt.title(f'Loss of the error over {epochs} epochs')
+  plt.show()
+
 def build_feature(X, n):
   """
   Return the feature of the X with n number of features
@@ -113,6 +129,7 @@ def gradient_descent(y, f, lr, epochs):
   m, n =  f.shape
   params = np.zeros(n) # parameters initialized to 0
   epoch_data = {}
+  loss_data = []
 
   for epoch in range(epochs):
     prediction = f.dot(params)
@@ -120,10 +137,11 @@ def gradient_descent(y, f, lr, epochs):
     gradient = 2 / m * f.T.dot(errors)
     params -= lr * gradient
 
+    loss_data.append(np.mean(errors ** 2))
     epoch_data[epoch] = params.copy()
     print(f"Epoch: {epoch+1}, params: {params}")
 
-  return params, epoch_data
+  return params, epoch_data, loss_data
 
 X, Y = load_coordinates('assets/Part1_x_y_Values.txt')
 x_norm, y_norm = normalize_features(X, Y)
@@ -141,7 +159,8 @@ parser.add_argument('--all', type=bool, default=False, help="Show all epochs")
 args = parser.parse_args()
 
 feature = build_feature(x_norm, args.features)
-params, epoch_data = gradient_descent(y_norm, feature, args.lr, args.epochs)
+params, epoch_data, loss_data = gradient_descent(y_norm, feature, args.lr, args.epochs)
 print(f"Final Parameters: ", params)
 
 plot_data(x_norm, y_norm, epoch_data, epochs=args.epochs, showLegend=not args.all)
+plot_error_over_epoch(loss_data, epochs=args.epochs)
